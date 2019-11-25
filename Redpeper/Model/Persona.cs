@@ -12,7 +12,7 @@ namespace Redpeper.Model
         public int Id { get; set; }
         public string Nombres { get; set; }
         public string Apellidos { get; set; }
-        public char Sexo { get; set; }
+        public string Sexo { get; set; }
         public DateTime FechaNacimiento { get; set; }
         [MaxLength(10)]
         public string Dui { get; set; }

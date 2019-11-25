@@ -50,7 +50,7 @@ namespace Redpeper.Controllers
         public async Task<IActionResult> PutCliente( Cliente cliente)
         {
             var Cliente = await _clienteRepository.GetClientById(cliente.Id);
-            if (!Cliente.Equals(null))
+            if (Cliente.Equals(null))
             {
                 return BadRequest();
             }
@@ -76,7 +76,8 @@ namespace Redpeper.Controllers
         }
 
         // DELETE: api/Clientes/5
-        [HttpDelete("{id}")]
+        [HttpDelete]
+
         public async Task<ActionResult<Cliente>> DeleteCliente(int id)
         {
             var client = await _clienteRepository.GetClientById(id);
