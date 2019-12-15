@@ -20,7 +20,7 @@ namespace Redpeper.Repositories
 
         public async Task<List<Provider>> GetAll()
         {
-            return  await _dataContext.Providers.ToListAsync();
+            return  await _dataContext.Providers.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<Provider> GetById(int id)
