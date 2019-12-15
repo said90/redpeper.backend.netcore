@@ -34,7 +34,9 @@ namespace Redpeper
             services.AddCors();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            services.AddScoped<IProviderRepository, ProviderRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 
         }
 
