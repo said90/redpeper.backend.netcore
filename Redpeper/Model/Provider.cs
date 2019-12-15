@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace Redpeper.Model
 {
-    public class Cliente
+    public class Provider
     {
         public int Id { get; set; }
-        public int idPersona { get; set; }
-        public virtual Persona Persona { get; set; }
+        public string Name { get; set; }
+        public string Telephone { get; set; }
     }
 }

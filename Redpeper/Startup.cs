@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Redpeper.Data;
-using Redpeper.Repository;
+using Redpeper.Repositories;
 
 namespace Redpeper
 {
@@ -32,8 +32,10 @@ namespace Redpeper
             services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString("PostgresConnetion")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCors();
-            services.AddScoped<IPersonaRepository, PersonaRepository>();
-            services.AddScoped<IClienteRepository, ClienteRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -10,15 +10,10 @@ namespace Redpeper.Data
     public class DataContext: DbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
-        public DbSet<Persona> Personas { get; set; }
-        public DbSet<Empleado> Empleados { get; set; }
-        public DbSet<Cliente> Clientes { get; set; }
-        public DbSet<Insumo> Insumos { get; set; }
-        public DbSet<Proveedor> Proveedores { get; set; }
-        public DbSet<FacturaCompra> FacturaCompras { get; set; }
-        public DbSet<DetalleCompraFactura> DetalleCompraFacturas { get; set; }
-        public DbSet<MovientosInventario> MovientosInventario { get; set; }
-        public DbSet<Inventario> Inventario { get; set; }
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Provider> Providers { get; set; }
+
 
     }
 }
