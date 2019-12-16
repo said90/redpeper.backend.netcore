@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Redpeper.Data;
 using Redpeper.Repositories;
+using Redpeper.Repositories.InvoiceSupply;
 
 namespace Redpeper
 {
@@ -35,9 +36,10 @@ namespace Redpeper
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IProviderRepository, ProviderRepository>();
+            services.AddScoped<ISupplyRepository, SupplyRepository>();
+            services.AddScoped<ISupplyInvoiceRepository, SupplyInvoiceRepository>();
+            services.AddScoped<ISupplyInvoiceDetailRepository, SupplyInvoiceDetailRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
