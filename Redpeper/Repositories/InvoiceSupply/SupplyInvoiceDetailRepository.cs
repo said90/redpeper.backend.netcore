@@ -27,14 +27,28 @@ namespace Redpeper.Repositories.InvoiceSupply
             _dataContext.SupplyInvoiceDetails.Add(detail);
         }
 
+        public void CreateRange(List<SupplyInvoiceDetail> details)
+        {
+            _dataContext.SupplyInvoiceDetails.AddRange(details);
+        }
+
         public void Update(SupplyInvoiceDetail detail)
         {
             _dataContext.SupplyInvoiceDetails.Update(detail);
+        }
+        public void UpdateRange(List<SupplyInvoiceDetail> details)
+
+        {
+            _dataContext.SupplyInvoiceDetails.UpdateRange(details);
         }
 
         public void Remove(SupplyInvoiceDetail detail)
         {
             _dataContext.SupplyInvoiceDetails.Remove(detail);
+        }
+        public void RemoveRange(SupplyInvoiceDetail details)
+        {
+            _dataContext.SupplyInvoiceDetails.RemoveRange(details);
         }
     }
 }

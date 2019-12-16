@@ -19,33 +19,38 @@ namespace Redpeper.Repositories.InvoiceSupply
 
         public async Task<List<SupplyInvoice>> GetAll()
         {
-            return await _dataContext.SupplyInvoices.OrderBy(x=>x.Id).ToListAsync();
+            return await _dataContext.SupplyInvoices.Include(x => x.Details).ToListAsync();
         }
 
         public async Task<SupplyInvoice> GetById(int id)
         {
-            return await _dataContext.SupplyInvoices.FirstOrDefaultAsync(x=> x.Id ==id);
+            return await _dataContext.SupplyInvoices.Include(x => x.Details).FirstOrDefaultAsync(x=> x.Id ==id);
+        }
+
+        public async  Task<int> GetMaxInvoice()
+        {
+            return await _dataContext.SupplyInvoices.Select(x=>x.Id).MaxAsync();
         }
 
         public async Task<SupplyInvoice> GetByInvoiceNumber(string number)
         {
-            return await _dataContext.SupplyInvoices.FirstOrDefaultAsync(x => x.InvoiceNumber == number);
+            return await _dataContext.SupplyInvoices.Include(x => x.Details).FirstOrDefaultAsync(x => x.InvoiceNumber == number);
         }
 
         public async Task<List<SupplyInvoice>> GetByProvider(int id)
         {
-            return await _dataContext.SupplyInvoices.Where(x => x.ProviderId == id).ToListAsync();
+            return await _dataContext.SupplyInvoices.Include(x => x.Details).Where(x => x.ProviderId == id).ToListAsync();
         }
 
         public async Task<List<SupplyInvoice>> GetByDate(DateTime date)
         {
-            return await _dataContext.SupplyInvoices.Where(x => x.EmissionDate >= date && x.EmissionDate <= date)
+            return await _dataContext.SupplyInvoices.Include(x => x.Details).Where(x => x.EmissionDate >= date && x.EmissionDate <= date)
                 .ToListAsync();
         }
 
         public async Task<List<SupplyInvoice>> GetByDateRange(DateTime initialDate, DateTime endDate)
         {
-            return await _dataContext.SupplyInvoices.Where(x => x.EmissionDate >= initialDate && x.EmissionDate <= endDate)
+            return await _dataContext.SupplyInvoices.Include(x => x.Details).Where(x => x.EmissionDate >= initialDate && x.EmissionDate <= endDate)
                 .ToListAsync();
         }
 

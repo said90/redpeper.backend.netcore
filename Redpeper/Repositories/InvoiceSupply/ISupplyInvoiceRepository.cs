@@ -9,6 +9,7 @@ namespace Redpeper.Repositories.InvoiceSupply
     {
         Task<List<SupplyInvoice>> GetAll();
         Task<SupplyInvoice> GetById(int id);
+        Task<int> GetMaxInvoice();
         Task<SupplyInvoice> GetByInvoiceNumber(string number);
         Task<List<SupplyInvoice>> GetByProvider(int id);
         Task<List<SupplyInvoice>> GetByDate(DateTime date);
