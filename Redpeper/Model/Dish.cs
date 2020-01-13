@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace Redpeper.Model
 {
-    public class Supply
+    public class Dish
     {
         public int Id { get; set; }
+        public int DishCategoryId { get; set; }
+        public virtual DishCategory DishCategory { get; set; }
         public string Name { get; set; }
-        public string Presentation { get; set; }
         public string Description { get; set; }
-        public string UnitOfMeasure { get; set; }
-        public double MinimumQty { get; set; }
+        public double Price { get; set; }
     }
 }

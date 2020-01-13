@@ -18,9 +18,9 @@ namespace Redpeper.Controllers
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public EmployeesController(IEmployeeRepository empleadoRepository, IUnitOfWork unitOfWork)
+        public EmployeesController(IEmployeeRepository employeeRepository, IUnitOfWork unitOfWork)
         {
-            _employeeRepository = empleadoRepository;
+            _employeeRepository = employeeRepository;
             _unitOfWork = unitOfWork;
         }
 
