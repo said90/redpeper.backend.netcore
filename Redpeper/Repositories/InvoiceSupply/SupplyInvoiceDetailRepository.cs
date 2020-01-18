@@ -46,7 +46,8 @@ namespace Redpeper.Repositories.InvoiceSupply
         {
             _dataContext.SupplyInvoiceDetails.Remove(detail);
         }
-        public void RemoveRange(SupplyInvoiceDetail details)
+    
+        public void RemoveRange(List<SupplyInvoiceDetail> details)
         {
             _dataContext.SupplyInvoiceDetails.RemoveRange(details);
         }

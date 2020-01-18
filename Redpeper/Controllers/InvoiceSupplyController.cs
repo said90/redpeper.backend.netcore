@@ -29,21 +29,21 @@ namespace Redpeper.Controllers
 
         [HttpGet]
         public async Task<ActionResult<List<SupplyInvoice>>> GetAll()
-        {
+          {
             return await _supplyInvoiceRepository.GetAll();
 
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<SupplyInvoice>> GetInvoiceNumber(int id)
+        [HttpGet("[action]/{id}")]
+        public async Task<ActionResult<SupplyInvoice>> GetInvoiceById(int id)
         {
 
             return await _supplyInvoiceRepository.GetById(id);
         }
 
 
-        [HttpGet("{invoiceNumber}")]
-        public async Task<ActionResult<SupplyInvoice>> GetInvoiceNumber(string invoiceNumber)
+        [HttpGet("[action]/{invoiceNumber}")]
+        public async Task<ActionResult<SupplyInvoice>> GetInvoiceByNumber(string invoiceNumber)
         {
 
             return await _supplyInvoiceRepository.GetByInvoiceNumber(invoiceNumber);
