@@ -12,7 +12,6 @@ namespace Redpeper.Repositories.InvoiceSupply
         void Update(SupplyInvoiceDetail detail);
         void UpdateRange(List<SupplyInvoiceDetail> details);
         void Remove(SupplyInvoiceDetail detail);
-        void RemoveRange(SupplyInvoiceDetail details);
-
+        void RemoveRange(List<SupplyInvoiceDetail> details);
     }
 }
