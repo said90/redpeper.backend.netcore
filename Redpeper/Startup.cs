@@ -14,7 +14,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Redpeper.Data;
 using Redpeper.Repositories;
+using Redpeper.Repositories.Inventory;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Services.Inventory;
 
 namespace Redpeper
 {
@@ -39,6 +41,12 @@ namespace Redpeper
             services.AddScoped<ISupplyRepository, SupplyRepository>();
             services.AddScoped<ISupplyInvoiceRepository, SupplyInvoiceRepository>();
             services.AddScoped<ISupplyInvoiceDetailRepository, SupplyInvoiceDetailRepository>();
+            services.AddScoped<ICurrentInventorySupplyRepository, CurrentInventorySupplyRepository>();
+            services.AddScoped<ICurrentInventorySupplyRepository, CurrentInventorySupplyRepository>();
+            services.AddScoped<IInventorySupplyTransactionRepository, InventorySupplyRepository >();
+
+            services.AddScoped<IInventoryService, InventoryService>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
