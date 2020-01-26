@@ -9,7 +9,6 @@ namespace Redpeper.Model
     {
         public int Id { get; set; }
         public int SupplyInvoiceId { get; set; }
-        public virtual SupplyInvoice SupplyInvoice { get; set; }
         public int SupplyId { get; set; }
         public DateTime ExpirationDate { get; set; }
         public double Quantity { get; set; }
