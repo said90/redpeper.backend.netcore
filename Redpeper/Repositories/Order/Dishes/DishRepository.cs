@@ -24,12 +24,12 @@ namespace Redpeper.Repositories.Order.Dishes
 
         public async Task<Dish> GetById(int id)
         {
-            return await _dataContext.Dishes.FirstOrDefaultAsync(x => x.Id == id);
+            return await _dataContext.Dishes.Include(x=>x.DishSupplies).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Dish> GetByName(string name)
         {
-            return await _dataContext.Dishes.FirstOrDefaultAsync(x => x.Name == name);
+            return await _dataContext.Dishes.Include(x => x.DishSupplies).FirstOrDefaultAsync(x => x.Name == name);
         }
 
         public async Task<int> GetMaxId()
