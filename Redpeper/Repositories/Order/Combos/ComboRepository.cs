@@ -10,7 +10,7 @@ namespace Redpeper.Repositories.Order.Combos
 {
     public class ComboRepository : IComboRepository
     {
-        private DataContext _dataContext;
+        private readonly DataContext _dataContext;
 
         public ComboRepository(DataContext dataContext)
         {

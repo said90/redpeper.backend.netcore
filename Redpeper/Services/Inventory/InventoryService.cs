@@ -24,7 +24,7 @@ namespace Redpeper.Services.Inventory
         }
 
 
-        public async Task AddInvoiceDetailToInventory(InvoiceSupplyDto invoice)
+        public async Task   AddInvoiceDetailToInventory(InvoiceSupplyDto invoice)
         {
             var inventoryDetails = invoice.Details.Select(x => new CurrentInventorySupply
             {

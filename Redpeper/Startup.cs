@@ -18,6 +18,7 @@ using Redpeper.Repositories.Inventory;
 using Redpeper.Repositories.InvoiceSupply;
 using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Order.Dishes;
+using Redpeper.Repositories.Tables;
 using Redpeper.Services.Inventory;
 
 namespace Redpeper
@@ -48,6 +49,8 @@ namespace Redpeper
             services.AddScoped<IInventorySupplyTransactionRepository, InventorySupplyRepository >();
             services.AddScoped<IDishRepository, DishRepository>();
             services.AddScoped<IDishSuppliesRepository, DishSuppliesRepository>();
+            services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
+            services.AddScoped<ITableRepository, TableRepository>();
             services.AddScoped<IComboRepository, ComboRepository>();
             services.AddScoped<IComboDetailRepository, ComboDetailRepository>();
             services.AddScoped<IInventoryService, InventoryService>();

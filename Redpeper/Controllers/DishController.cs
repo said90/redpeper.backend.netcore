@@ -10,6 +10,8 @@ using Redpeper.Repositories.Order.Dishes;
 
 namespace Redpeper.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class DishController : ControllerBase
     {
         private readonly IDishRepository _dishRepository;
@@ -41,7 +43,7 @@ namespace Redpeper.Controllers
             return await _dishRepository.GetByName(name);
         }
 
-        [HttpPost("[action]/{name}")]
+        [HttpPost("[action]")]
         public async Task<ActionResult<Dish>> CreateDish(DishDto dishDto)
         {
             try
@@ -76,7 +78,7 @@ namespace Redpeper.Controllers
             }
         }
 
-        [HttpPost("[action]/{name}")]
+        [HttpPost("[action]")]
         public async Task<ActionResult<DishSupply>> CreateDishSupply(DishSupply dishSupply)
         {
             try
@@ -93,12 +95,10 @@ namespace Redpeper.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<ActionResult<Dish>> UpdateDish(int id)
+        public async Task<ActionResult<Dish>> UpdateDish(Dish dish)
         {
             try
             {
-                var dish = await _dishRepository.GetById(id);
-
                 if (dish == null)
                 {
                     return NotFound();
@@ -125,7 +125,7 @@ namespace Redpeper.Controllers
                 {
                     return NotFound();
                 }
-                _dishSuppliesRepository.Update(dish);
+                _dishSuppliesRepository.Update(dishSupply);
                 await _unitOfWork.Commit();
                 return dishSupply;
             }

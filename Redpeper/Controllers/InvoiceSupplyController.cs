@@ -19,7 +19,7 @@ namespace Redpeper.Controllers
     {
         private readonly ISupplyInvoiceRepository _supplyInvoiceRepository;
         private readonly ISupplyInvoiceDetailRepository _supplyInvoiceDetailRepository;
-        private IInventoryService _inventoryService;
+        private readonly IInventoryService _inventoryService;
         private readonly IUnitOfWork _unitOfWork;
 
         public InvoiceSupplyController(ISupplyInvoiceRepository supplyInvoiceRepository, IUnitOfWork unitOfWork,
@@ -55,6 +55,7 @@ namespace Redpeper.Controllers
         {
             var inv = new SupplyInvoice
             {
+
                 InvoiceNumber = invoice.InvoiceNumber,
                 EmissionDate = invoice.EmissionDate,
                 ProviderId = invoice.ProviderId,
