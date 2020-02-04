@@ -95,7 +95,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<ActionResult<Dish>> UpdateDish(Dish dish)
+        public async Task<ActionResult<Dish>> UpdateDish(DishDto dish)
         {
             try
             {
@@ -103,7 +103,50 @@ namespace Redpeper.Controllers
                 {
                     return NotFound();
                 }
-                _dishRepository.Update(dish);
+                var dsh = new Dish
+                {
+                    Id = dish.Id,
+                    Description = dish.Description,
+                    Price = dish.Price,
+                    Name = dish.Name,
+                    DishCategoryId = dish.DishCategoryId
+                };
+                _dishRepository.Update(dsh);
+                await _unitOfWork.Commit();
+
+                var dishDetails = dish.DishSupplies.Select(x => new DishSupply
+                {
+                    Id = x.Id,
+                    DishId = x.DishId,
+                    Qty = x.Qty,
+                    Comment = x.Comment,
+                    SupplyId = x.SupplyId
+                }).ToList();
+
+                _dishSuppliesRepository.UpdateRange(dishDetails);
+                await _unitOfWork.Commit();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+
+            }
+
+            return Ok(dish);
+        }
+
+        [HttpPut("[action]")]
+        public async Task<ActionResult<DishSupply>> UpdateDishSupply(DishSupply dishSupply)
+        {
+            try
+            {
+                var dish = await _dishSuppliesRepository.GetById(dishSupply.Id);
+
+                if (dish == null)
+                {
+                    return NotFound();
+                }
+                _dishSuppliesRepository.Update(dish);
                 await _unitOfWork.Commit();
                 return dish;
             }
@@ -114,29 +157,7 @@ namespace Redpeper.Controllers
             }
         }
 
-        [HttpPut("[action]")]
-        public async Task<ActionResult<DishSupply>> UpdateDishSupply(DishSupply dishSupply)
-        {
-            try
-            {
-                var dish = await _dishSuppliesRepository.GetById(dishSupply.DishId);
-
-                if (dish == null)
-                {
-                    return NotFound();
-                }
-                _dishSuppliesRepository.Update(dishSupply);
-                await _unitOfWork.Commit();
-                return dishSupply;
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-
-            }
-        }
-
-        [HttpDelete]
+        [HttpDelete("[action]/{id}")]
         public async Task<ActionResult<Dish>> RemoveDish(int id)
         {
             try
@@ -162,19 +183,19 @@ namespace Redpeper.Controllers
             }
         }
 
-        [HttpDelete("[action]")]
+        [HttpDelete("[action]/{id}")]
         public async Task<ActionResult<DishSupply>> RemoveDishSupply(int id)
         {
             try
             {
-                var dish = await _dishSuppliesRepository.GetById(id);
-                if (dish == null)
+                var dishSupply = await _dishSuppliesRepository.GetById(id);
+                if (dishSupply == null)
                 {
                     return NotFound();
                 }
-                _dishSuppliesRepository.Delete(dish);
+                _dishSuppliesRepository.Delete(dishSupply);
                 await _unitOfWork.Commit();
-                return dish;
+                return dishSupply;
             }
             catch (Exception e)
             {

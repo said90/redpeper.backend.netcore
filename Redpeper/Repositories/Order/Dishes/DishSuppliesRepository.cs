@@ -42,6 +42,11 @@ namespace Redpeper.Repositories.Order.Dishes
             _dataContext.DishSupplies.Update(dishSupply);
         }
 
+        public void UpdateRange(List<DishSupply> dishSupplies)
+        {
+            _dataContext.DishSupplies.UpdateRange(dishSupplies);
+        }
+
         public void Delete(DishSupply dishSupply)
         {
             _dataContext.DishSupplies.Remove(dishSupply);

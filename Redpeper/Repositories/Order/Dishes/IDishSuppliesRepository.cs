@@ -14,6 +14,8 @@ namespace Redpeper.Repositories.Order.Dishes
         void Create(DishSupply dishSupply);
         void CreateRange(List<DishSupply> dishSupplies);
         void Update(DishSupply dishSupply);
+        void UpdateRange(List<DishSupply> dishSupplies);
+
         void Delete(DishSupply dishSupply);
         void DeleteRange(List<DishSupply> dishSupplies);
     }

@@ -19,17 +19,17 @@ namespace Redpeper.Repositories.Order.Combos
 
         public async Task<List<Combo>> GetAll()
         {
-            return await _dataContext.Combos.ToListAsync();
+            return await _dataContext.Combos.Include(x=>x.ComboDetails).OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<Combo> GetById(int id)
         {
-            return await _dataContext.Combos.FirstOrDefaultAsync(x => x.Id == id);
+            return await _dataContext.Combos.Include(x=>x.ComboDetails).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Combo> GetByName(string name)
         {
-            return await _dataContext.Combos.FirstOrDefaultAsync(x => x.Name == name);
+            return await _dataContext.Combos.Include(x => x.ComboDetails).FirstOrDefaultAsync(x => x.Name == name);
         }
 
         public async Task<int> GetMaxCombo()

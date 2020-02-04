@@ -19,7 +19,7 @@ namespace Redpeper.Repositories.Order.Dishes
 
         public async Task<List<DishCategory>> GetAll()
         {
-            return await _dataContext.DishCategories.ToListAsync();
+            return await _dataContext.DishCategories.OrderBy(x=> x.Id).ToListAsync();
         }
 
         public async Task<DishCategory> GetById(int id)
