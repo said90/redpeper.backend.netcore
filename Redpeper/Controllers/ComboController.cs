@@ -51,7 +51,8 @@ namespace Redpeper.Controllers
                 var cmbo = new Combo
                 {
                     Name = combo.Name,
-                    Description = combo.Description
+                    Description = combo.Description,
+                    Total = combo.Total
                 };
                 _comboRepository.Create(cmbo);
                 await _unitOfWork.Commit();
@@ -93,7 +94,7 @@ namespace Redpeper.Controllers
             }
             catch (Exception e)
             {
-               return  BadRequest(e.Message);
+                return BadRequest(e.Message);
             }
             return Ok();
         }
@@ -158,7 +159,7 @@ namespace Redpeper.Controllers
                     return NotFound();
                 }
 
-                var comboDetails =  await  _comboDetailRepository.GetDetailsByCombo(id);
+                var comboDetails = await _comboDetailRepository.GetDetailsByCombo(id);
                 _comboDetailRepository.DeleteRange(comboDetails);
                 await _unitOfWork.Commit();
                 _comboRepository.Remove(combo);
@@ -168,7 +169,7 @@ namespace Redpeper.Controllers
             }
             catch (Exception e)
             {
-                 return  BadRequest(e.Message);
+                return BadRequest(e.Message);
             }
         }
 
@@ -177,7 +178,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var comboDet =  await _comboDetailRepository.GetById(id);
+                var comboDet = await _comboDetailRepository.GetById(id);
                 _comboDetailRepository.Delete(comboDet);
                 await _unitOfWork.Commit();
                 return Ok(comboDet);
