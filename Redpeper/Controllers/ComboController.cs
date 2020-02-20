@@ -77,26 +77,26 @@ namespace Redpeper.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateComboDetail([FromBody] ComboDetail detail)
+        public async Task<ActionResult<ComboDetail>> CreateComboDetail(ComboDetail detail)
         {
             try
             {
-                var cmbo = new ComboDetail()
-                {
-                    ComboId = detail.ComboId,
-                    DishId = detail.DishId,
-                    Price = detail.Price,
-                    Qty = detail.Qty
-                };
-                _comboDetailRepository.Create(cmbo);
+                // var cmbo = new ComboDetail()
+                // {
+                //     ComboId = detail.ComboId,
+                //     DishId = detail.DishId,
+                //     Price = detail.Price,
+                //     Qty = detail.Qty
+                // };
+                _comboDetailRepository.Create(detail);
                 await _unitOfWork.Commit();
-
+                return detail;
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
-            return Ok();
+
         }
 
         [HttpPut("[action]")]
