@@ -108,7 +108,8 @@ namespace Redpeper.Controllers
                 {
                     Id = combo.Id,
                     Name = combo.Name,
-                    Description = combo.Description
+                    Description = combo.Description,
+                    Total = combo.Total
                 };
                 _comboRepository.Update(cmbo);
                 await _unitOfWork.Commit();
