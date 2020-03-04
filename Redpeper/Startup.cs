@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Redpeper.Data;
+using Redpeper.Hubs;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Inventory;
 using Redpeper.Repositories.InvoiceSupply;
@@ -55,6 +56,8 @@ namespace Redpeper
             services.AddScoped<IComboDetailRepository, ComboDetailRepository>();
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddSignalR();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,7 +73,16 @@ namespace Redpeper
                 app.UseHsts();
             }
 
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(config => config.AllowAnyMethod().AllowAnyHeader()
+                    .WithOrigins("*")
+                    .WithMethods("*")
+                    .WithHeaders("*")
+                    .DisallowCredentials()
+
+                
+            );
+            app.UseSignalR(x => 
+            x.MapHub<OrderHub>("/orderHub"));
             app.UseMvc();
         }
     }
