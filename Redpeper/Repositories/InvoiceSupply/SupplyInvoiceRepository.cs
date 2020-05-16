@@ -19,7 +19,7 @@ namespace Redpeper.Repositories.InvoiceSupply
 
         public async Task<List<SupplyInvoice>> GetAll()
         {
-            return await _dataContext.SupplyInvoices.ToListAsync();
+            return await _dataContext.SupplyInvoices.Include(x=>x.Details).ToListAsync();
         }
 
         public async Task<SupplyInvoice> GetById(int id)
