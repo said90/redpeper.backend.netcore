@@ -13,7 +13,7 @@ namespace Redpeper.Model
         public DateTime Date { get; set; }
         public int CustomerId { get; set; }
         public virtual Customer Customer { get; set; }
-        public String Status { get; set; }
+        public string Status { get; set; }
         public virtual List<OrderDetail> OrderDetails { get; set; }
     }
 }
