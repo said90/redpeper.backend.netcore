@@ -74,7 +74,7 @@ namespace Redpeper
             services.AddScoped<ISupplyInvoiceDetailRepository, SupplyInvoiceDetailRepository>();
             services.AddScoped<ICurrentInventorySupplyRepository, CurrentInventorySupplyRepository>();
             services.AddScoped<ICurrentInventorySupplyRepository, CurrentInventorySupplyRepository>();
-            services.AddScoped<IInventorySupplyTransactionRepository, InventorySupplyRepository >();
+            services.AddScoped<IInventorySupplyTransactionRepository, InventorySupplyRepository>();
             services.AddScoped<IDishRepository, DishRepository>();
             services.AddScoped<IDishSuppliesRepository, DishSuppliesRepository>();
             services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
@@ -85,7 +85,7 @@ namespace Redpeper
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSignalR();
-            
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -108,10 +108,9 @@ namespace Redpeper
                     .WithMethods("*")
                     .WithHeaders("*")
                     .DisallowCredentials()
-
-                
+                    .WithExposedHeaders("X-Pagination")
             );
-            app.UseSignalR(x => 
+            app.UseSignalR(x =>
             x.MapHub<OrderHub>("/orderHub"));
             app.UseMvc();
         }
