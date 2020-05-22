@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Redpeper.Collection;
 using Redpeper.Model;
 
 namespace Redpeper.Repositories.InvoiceSupply
@@ -8,6 +9,8 @@ namespace Redpeper.Repositories.InvoiceSupply
     public interface ISupplyInvoiceRepository
     {
         Task<List<SupplyInvoice>> GetAll();
+        Task<PagedList<SupplyInvoice>> GetPaginated(int pageNumber, int pageSize, string sort);
+
         Task<SupplyInvoice> GetById(int id);
         Task<int> GetMaxInvoice();
         Task<SupplyInvoice> GetByInvoiceNumber(string number);

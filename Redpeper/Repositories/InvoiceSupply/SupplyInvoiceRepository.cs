@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Redpeper.Collection;
 using Redpeper.Data;
+using Redpeper.Extensions;
 using Redpeper.Model;
 
 namespace Redpeper.Repositories.InvoiceSupply
@@ -20,6 +22,12 @@ namespace Redpeper.Repositories.InvoiceSupply
         public async Task<List<SupplyInvoice>> GetAll()
         {
             return await _dataContext.SupplyInvoices.Include(x=>x.Details).ToListAsync();
+        }
+
+        public async Task<PagedList<SupplyInvoice>> GetPaginated(int pageNumber, int pageSize, string sort)
+        {
+            return await _dataContext.SupplyInvoices.ToPagedListAsync(pageNumber, pageSize, sort);
+
         }
 
         public async Task<SupplyInvoice> GetById(int id)

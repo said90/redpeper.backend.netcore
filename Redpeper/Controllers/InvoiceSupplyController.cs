@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
+using Newtonsoft.Json;
+using Redpeper.Collection;
 using Redpeper.Dto;
 using Redpeper.Model;
 using Redpeper.Repositories;
@@ -34,10 +36,28 @@ namespace Redpeper.Controllers
             _inventoryService = inventoryService;
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult<List<SupplyInvoice>>> GetAll()
+        //{
+        //    return await _supplyInvoiceRepository.GetAll();
+        //}
+
         [HttpGet]
-        public async Task<ActionResult<List<SupplyInvoice>>> GetAll()
+        public async Task<PagedList<SupplyInvoice>> GetPaginated(int page = 1, int size = 10, string sort = "")
         {
-            return await _supplyInvoiceRepository.GetAll();
+            var result = await _supplyInvoiceRepository.GetPaginated(page, size, sort);
+            var metadata = new
+            {
+                result.TotalCount,
+                result.ItemPerPage,
+                result.Page,
+                result.TotalPages,
+                result.HasMorePages,
+                result.HasPrevPages,
+                result.Sort
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            return result;
         }
 
         [HttpGet("[action]/{id}")]
