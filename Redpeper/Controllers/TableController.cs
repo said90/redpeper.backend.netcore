@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Redpeper.Collection;
 using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Tables;
@@ -25,10 +27,28 @@ namespace Redpeper.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult<List<Table>>> GetAll()
+        //{
+        //    return await _tableRepository.GetAll();
+        //}
+
         [HttpGet]
-        public async Task<ActionResult<List<Table>>> GetAll()
+        public async Task<PagedList<Table>> GetPaginated(int page = 1, int size = 10, string sort = "")
         {
-            return await _tableRepository.GetAll();
+            var result = await _tableRepository.GetPaginated(page, size, sort);
+            var metadata = new
+            {
+                result.TotalCount,
+                result.ItemPerPage,
+                result.Page,
+                result.TotalPages,
+                result.HasMorePages,
+                result.HasPrevPages,
+                result.Sort
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            return result;
         }
 
         [HttpGet("[action]/{id}")]
