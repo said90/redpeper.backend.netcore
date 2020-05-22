@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Redpeper.Collection;
 using Redpeper.Data;
+using Redpeper.Extensions;
 using Redpeper.Model;
 
 namespace Redpeper.Repositories.Order.Dishes
@@ -20,6 +22,11 @@ namespace Redpeper.Repositories.Order.Dishes
         public async Task<List<DishCategory>> GetAll()
         {
             return await _dataContext.DishCategories.OrderBy(x=> x.Id).ToListAsync();
+        }
+
+        public async Task<PagedList<DishCategory>> GetPaginated(int pageNumber, int pageSize, string sort)
+        {
+            return await _dataContext.DishCategories.ToPagedListAsync(pageNumber, pageSize, sort);
         }
 
         public async Task<DishCategory> GetById(int id)
