@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Redpeper.Collection;
 using Redpeper.Data;
+using Redpeper.Extensions;
 using Redpeper.Model;
 
 namespace Redpeper.Repositories
@@ -20,6 +22,11 @@ namespace Redpeper.Repositories
         public async Task<List<Supply>> GetAll()
         {
             return await _dataContext.Supplies.OrderBy(x => x.Id).ToListAsync();
+        }
+
+        public async Task<PagedList<Supply>> GetPaginated(int pageNumber, int pageSize, string sort)
+        {
+            return await _dataContext.Supplies.ToPagedListAsync(pageNumber, pageSize, sort);
         }
 
         public async Task<Supply> GetById(int id)

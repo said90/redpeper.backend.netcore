@@ -10,7 +10,7 @@ namespace Redpeper.Repositories
     public interface IProviderRepository
     {
         Task<List<Provider>> GetAll();
-        Task<PagedList<Provider>> GetPaginated(int pageNumber, int pageSize);
+        Task<PagedList<Provider>> GetPaginated(int pageNumber, int pageSize, string sort);
         Task<Provider> GetById(int id);
         void Create(Provider provider);
         void Update(Provider provider);

@@ -25,10 +25,10 @@ namespace Redpeper.Repositories
             return  await _dataContext.Providers.OrderBy(x => x.Id).ToListAsync();
         }
 
-        public async Task<PagedList<Provider>> GetPaginated(int pageNumber, int pageSize)
+        public async Task<PagedList<Provider>> GetPaginated(int pageNumber, int pageSize, string sort)
         {
             var result =await _dataContext.Providers.ToPagedListAsync(pageNumber, pageSize);
-            return await _dataContext.Providers.ToPagedListAsync(pageNumber,pageSize);
+            return await _dataContext.Providers.ToPagedListAsync(pageNumber,pageSize,sort);
         }
 
         public async Task<Provider> GetById(int id)

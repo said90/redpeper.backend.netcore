@@ -103,7 +103,7 @@ namespace Redpeper
 
             app.UseAuthentication();
             app.UseCookiePolicy();
-            app.UseCors(config => config.AllowAnyMethod().AllowAnyHeader()
+            app.UseCors(config => config.AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination")
                     .WithOrigins("*")
                     .WithMethods("*")
                     .WithHeaders("*")

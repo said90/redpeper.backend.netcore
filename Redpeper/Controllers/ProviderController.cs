@@ -35,11 +35,9 @@ namespace Redpeper.Controllers
         //}
 
         [HttpGet]
-        public async Task<PagedList<Provider>> GetPaginated(int page, int size)
+        public async Task<PagedList<Provider>> GetPaginated(int page=1, int size = 10, string sort="")
         {
-            var pageNumber = page == 0 ? 1 : page;
-            var sizePage = size == 0 ? 10 : size;
-            var result = await _providerRepository.GetPaginated(pageNumber, sizePage);
+            var result = await _providerRepository.GetPaginated(page, size, sort);
             var metadata = new
             {
                 result.TotalCount,
