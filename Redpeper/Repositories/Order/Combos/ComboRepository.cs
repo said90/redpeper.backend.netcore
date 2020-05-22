@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Redpeper.Collection;
 using Redpeper.Data;
+using Redpeper.Extensions;
 using Redpeper.Model;
 
 namespace Redpeper.Repositories.Order.Combos
@@ -20,6 +22,11 @@ namespace Redpeper.Repositories.Order.Combos
         public async Task<List<Combo>> GetAll()
         {
             return await _dataContext.Combos.Include(x=>x.ComboDetails).OrderBy(x => x.Id).ToListAsync();
+        }
+
+        public async Task<PagedList<Combo>> GetPaginated(int pageNumber, int pageSize, string sort)
+        {
+            return await _dataContext.Combos.ToPagedListAsync(pageNumber, pageSize, sort);
         }
 
         public async Task<Combo> GetById(int id)
