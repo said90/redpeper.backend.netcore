@@ -30,29 +30,29 @@ namespace Redpeper.Controllers
             _dishSuppliesRepository = dishSuppliesRepository;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<List<Dish>>> GetAll()
-        //{
-        //    return await _dishRepository.GetAll();
-        //}
-
         [HttpGet]
-        public async Task<PagedList<Dish>> GetPaginated(int page = 1, int size = 10, string sort = "")
+        public async Task<ActionResult<List<Dish>>> GetAll()
         {
-            var result = await _dishRepository.GetPaginated(page, size, sort);
-            var metadata = new
-            {
-                result.TotalCount,
-                result.ItemPerPage,
-                result.Page,
-                result.TotalPages,
-                result.HasMorePages,
-                result.HasPrevPages,
-                result.Sort
-            };
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
-            return result;
+            return await _dishRepository.GetAll();
         }
+
+        // [HttpGet]
+        // public async Task<PagedList<Dish>> GetPaginated(int page = 1, int size = 10, string sort = "")
+        // {
+        //     var result = await _dishRepository.GetPaginated(page, size, sort);
+        //     var metadata = new
+        //     {
+        //         result.TotalCount,
+        //         result.ItemPerPage,
+        //         result.Page,
+        //         result.TotalPages,
+        //         result.HasMorePages,
+        //         result.HasPrevPages,
+        //         result.Sort
+        //     };
+        //     Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+        //     return result;
+        // }
 
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<Dish>> GetDishById(int id)
@@ -71,7 +71,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var dish  = new Dish
+                var dish = new Dish
                 {
                     Name = dishDto.Name,
                     Description = dishDto.Description,
@@ -80,9 +80,9 @@ namespace Redpeper.Controllers
                 };
                 _dishRepository.Create(dish);
                 await _unitOfWork.Commit();
-                 
+
                 var dishId = await _dishRepository.GetMaxId();
-                var dishSupplies =  dishDto.DishSupplies.Select(x => new DishSupply
+                var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
                 {
                     DishId = dishId,
                     SupplyId = x.SupplyId,
