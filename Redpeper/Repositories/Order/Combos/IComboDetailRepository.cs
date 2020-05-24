@@ -10,6 +10,8 @@ namespace Redpeper.Repositories.Order.Combos
     {
         Task<ComboDetail> GetById(int id);
         Task<List<ComboDetail>> GetDetailsByCombo(int comboId);
+        Task<List<ComboDetail>> GetDetailsByComboNoTracking(int comboId);
+
         void Create(ComboDetail comboDetail);
         void CreateRange(List<ComboDetail> comboDetails);
         void Update(ComboDetail comboDetail);

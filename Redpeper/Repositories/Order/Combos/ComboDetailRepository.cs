@@ -26,7 +26,12 @@ namespace Redpeper.Repositories.Order.Combos
         {
             return await _dataContext.ComboDetails.Where(x => x.ComboId == comboId).OrderBy(x => x.Id).ToListAsync();
         }
-        
+
+        public async Task<List<ComboDetail>> GetDetailsByComboNoTracking(int comboId)
+        {
+            return await _dataContext.ComboDetails.Where(x => x.ComboId == comboId).OrderBy(x => x.Id).AsNoTracking().ToListAsync();
+        }
+
         public void Create(ComboDetail comboDetail)
         {
             _dataContext.ComboDetails.Add(comboDetail);

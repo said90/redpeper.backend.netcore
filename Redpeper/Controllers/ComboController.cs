@@ -151,15 +151,16 @@ namespace Redpeper.Controllers
                     Qty = x.Qty
                 }).ToList();
 
-                var comboDetailsDb = await _comboDetailRepository.GetDetailsByCombo(combo.Id);
+                var comboDetailsDb = await _comboDetailRepository.GetDetailsByComboNoTracking(combo.Id);
 
                 if (comboDetailsDb.Count > comboDetails.Count)
                 {
-                    var removeDetail = new ComboDetail();
+                    var removeDetail = new List<ComboDetail>();
                     comboDetailsDb.ForEach(x =>
                     {
-                        removeDetail = comboDetails.Where(y => !y.Id.ToString().Contains(x.Id.ToString())).FirstOrDefault();
+                        removeDetail = comboDetails.Where(y => !y.Id.ToString().Contains(x.Id.ToString())).ToList();
                     });
+                    _comboDetailRepository.DeleteRange(removeDetail);
                 }
 
                _comboDetailRepository.UpdateRange(comboDetails);
