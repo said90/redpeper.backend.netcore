@@ -27,29 +27,29 @@ namespace Redpeper.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<List<Table>>> GetAll()
-        //{
-        //    return await _tableRepository.GetAll();
-        //}
-
         [HttpGet]
-        public async Task<PagedList<Table>> GetPaginated(int page = 1, int size = 10, string sort = "")
+        public async Task<ActionResult<List<Table>>> GetAll()
         {
-            var result = await _tableRepository.GetPaginated(page, size, sort);
-            var metadata = new
-            {
-                result.TotalCount,
-                result.ItemPerPage,
-                result.Page,
-                result.TotalPages,
-                result.HasMorePages,
-                result.HasPrevPages,
-                result.Sort
-            };
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
-            return result;
+            return await _tableRepository.GetAll();
         }
+
+        // [HttpGet]
+        // public async Task<PagedList<Table>> GetPaginated(int page = 1, int size = 10, string sort = "")
+        // {
+        //     var result = await _tableRepository.GetPaginated(page, size, sort);
+        //     var metadata = new
+        //     {
+        //         result.TotalCount,
+        //         result.ItemPerPage,
+        //         result.Page,
+        //         result.TotalPages,
+        //         result.HasMorePages,
+        //         result.HasPrevPages,
+        //         result.Sort
+        //     };
+        //     Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+        //     return result;
+        // }
 
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<Table>> GetById(int id)
