@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -134,9 +136,12 @@ namespace Redpeper.Controllers
                     Description = combo.Description,
                     Total = combo.Total
                 };
+                
                 _comboRepository.Update(cmbo);
                 await _unitOfWork.Commit();
 
+
+                
                 var comboDetails = combo.ComboDetails.Select(x => new ComboDetail
                 {
                     Id = x.Id,
@@ -146,7 +151,18 @@ namespace Redpeper.Controllers
                     Qty = x.Qty
                 }).ToList();
 
-                _comboDetailRepository.UpdateRange(comboDetails);
+                var comboDetailsDb = await _comboDetailRepository.GetDetailsByCombo(combo.Id);
+
+                if (comboDetailsDb.Count > comboDetails.Count)
+                {
+                    var removeDetail = new ComboDetail();
+                    comboDetailsDb.ForEach(x =>
+                    {
+                        removeDetail = comboDetails.Where(y => !y.Id.ToString().Contains(x.Id.ToString())).FirstOrDefault();
+                    });
+                }
+
+               _comboDetailRepository.UpdateRange(comboDetails);
                 await _unitOfWork.Commit();
             }
             catch (Exception e)
