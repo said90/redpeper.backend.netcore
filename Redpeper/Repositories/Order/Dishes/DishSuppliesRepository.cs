@@ -27,6 +27,11 @@ namespace Redpeper.Repositories.Order.Dishes
             return await _dataContext.DishSupplies.Where(x => x.DishId == dishId).ToListAsync();
         }
 
+        public async Task<List<DishSupply>> GetByDishIdNoTracking(int dishId)
+        {
+            return await _dataContext.DishSupplies.Where(x => x.DishId == dishId).AsNoTracking().ToListAsync();
+        }
+
         public void Create(DishSupply dishSupply)
         {
             _dataContext.DishSupplies.Add(dishSupply);

@@ -10,7 +10,8 @@ namespace Redpeper.Repositories.Order.Dishes
     {
         Task<DishSupply> GetById(int id);
         Task<List<DishSupply>> GetByDishId(int dishId);
-        
+        Task<List<DishSupply>> GetByDishIdNoTracking(int dishId);
+
         void Create(DishSupply dishSupply);
         void CreateRange(List<DishSupply> dishSupplies);
         void Update(DishSupply dishSupply);

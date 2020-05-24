@@ -145,7 +145,16 @@ namespace Redpeper.Controllers
                     Comment = x.Comment,
                     SupplyId = x.SupplyId
                 }).ToList();
+                var dishDetailsDb = await _dishSuppliesRepository.GetByDishIdNoTracking(dish.Id);
 
+
+                if (dishDetailsDb.Count > dishDetails.Count)
+                {
+                    var removeDetail = dishDetailsDb.Where(p => dishDetails.All(p2 => p2.Id != p.Id)).ToList();
+                    _dishSuppliesRepository.DeleteRange(removeDetail);
+                    await _unitOfWork.Commit();
+
+                }
                 _dishSuppliesRepository.UpdateRange(dishDetails);
                 await _unitOfWork.Commit();
             }
