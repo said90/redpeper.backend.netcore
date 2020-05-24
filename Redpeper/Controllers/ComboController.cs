@@ -153,13 +153,11 @@ namespace Redpeper.Controllers
 
                 var comboDetailsDb = await _comboDetailRepository.GetDetailsByComboNoTracking(combo.Id);
 
+                var ids = comboDetails.Select(x => x.Id);
+
                 if (comboDetailsDb.Count > comboDetails.Count)
                 {
-                    var removeDetail = new List<ComboDetail>();
-                    comboDetailsDb.ForEach(x =>
-                    {
-                        removeDetail = comboDetails.Where(y => !y.Id.ToString().Contains(x.Id.ToString())).ToList();
-                    });
+                 var removeDetail = comboDetailsDb.Where(p => comboDetails.All(p2 => p2.Id != p.Id)).ToList();
                     _comboDetailRepository.DeleteRange(removeDetail);
                     await _unitOfWork.Commit();
 
