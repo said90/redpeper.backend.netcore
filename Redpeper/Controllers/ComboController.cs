@@ -161,9 +161,11 @@ namespace Redpeper.Controllers
                         removeDetail = comboDetails.Where(y => !y.Id.ToString().Contains(x.Id.ToString())).ToList();
                     });
                     _comboDetailRepository.DeleteRange(removeDetail);
+                    await _unitOfWork.Commit();
+
                 }
 
-               _comboDetailRepository.UpdateRange(comboDetails);
+                _comboDetailRepository.UpdateRange(comboDetails);
                 await _unitOfWork.Commit();
             }
             catch (Exception e)
