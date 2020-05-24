@@ -148,9 +148,9 @@ namespace Redpeper.Controllers
                 var dishDetailsDb = await _dishSuppliesRepository.GetByDishIdNoTracking(dish.Id);
 
 
-                if (dishDetailsDb.Count > dishDetails.Count)
+                if (dishDetailsDb.Count >= dishDetails.Count)
                 {
-                    var removeDetail = dishDetailsDb.Where(p => dishDetails.All(p2 => p2.Id != p.Id)).ToList();
+                    var removeDetail = dishDetailsDb.Where(p => !dishDetails.Any(p2 => p2.Id == p.Id)).ToList();
                     _dishSuppliesRepository.DeleteRange(removeDetail);
                     await _unitOfWork.Commit();
 

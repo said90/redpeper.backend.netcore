@@ -136,12 +136,12 @@ namespace Redpeper.Controllers
                     Description = combo.Description,
                     Total = combo.Total
                 };
-                
+
                 _comboRepository.Update(cmbo);
                 await _unitOfWork.Commit();
 
 
-                
+
                 var comboDetails = combo.ComboDetails.Select(x => new ComboDetail
                 {
                     Id = x.Id,
@@ -155,9 +155,9 @@ namespace Redpeper.Controllers
 
                 var ids = comboDetails.Select(x => x.Id);
 
-                if (comboDetailsDb.Count > comboDetails.Count)
+                if (comboDetailsDb.Count >= comboDetails.Count)
                 {
-                 var removeDetail = comboDetailsDb.Where(p => comboDetails.All(p2 => p2.Id != p.Id)).ToList();
+                    var removeDetail = comboDetailsDb.Where(p => !comboDetails.Any(p2 => p2.Id == p.Id)).ToList();
                     _comboDetailRepository.DeleteRange(removeDetail);
                     await _unitOfWork.Commit();
 
