@@ -21,7 +21,7 @@ namespace Redpeper.Repositories.Tables
 
         public async Task<List<Table>> GetAll()
         {
-            return await _dataContext.Tables.ToListAsync();
+            return await _dataContext.Tables.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<PagedList<Table>> GetPaginated(int pageNumber, int pageSize, string sort)
@@ -31,7 +31,7 @@ namespace Redpeper.Repositories.Tables
 
         public async Task<Table> GetById(int id)
         {
-            return await _dataContext.Tables.FirstOrDefaultAsync(x=> x.Id ==id);
+            return await _dataContext.Tables.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Table> GetByName(string name)
