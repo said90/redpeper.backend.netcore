@@ -11,11 +11,11 @@ namespace Redpeper.Model
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int UserId { get; set; }
-        public string UserName { get; set; }
-        public string UserLastName { get; set; }
+        public int? CustomerId { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerLastName { get; set; }
         public double Chairs { get; set; }
         public int State { get; set; }
-        public virtual User User { get; set; }
+        public virtual Customer Customer { get; set; }
     }
 }

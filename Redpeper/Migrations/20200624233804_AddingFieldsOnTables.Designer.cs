@@ -10,8 +10,8 @@ using Redpeper.Data;
 namespace Redpeper.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200624230604_AddingStatusFieldoOnTables")]
-    partial class AddingStatusFieldoOnTables
+    [Migration("20200624233804_AddingFieldsOnTables")]
+    partial class AddingFieldsOnTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -445,23 +445,21 @@ namespace Redpeper.Migrations
 
                     b.Property<double>("Chairs");
 
+                    b.Property<int?>("CustomerId");
+
+                    b.Property<string>("CustomerLastName");
+
+                    b.Property<string>("CustomerName");
+
                     b.Property<string>("Description");
 
                     b.Property<string>("Name");
 
                     b.Property<int>("State");
 
-                    b.Property<int>("UserId");
-
-                    b.Property<string>("UserId1");
-
-                    b.Property<string>("UserLastName");
-
-                    b.Property<string>("UserName");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Tables");
                 });
@@ -647,9 +645,9 @@ namespace Redpeper.Migrations
 
             modelBuilder.Entity("Redpeper.Model.Table", b =>
                 {
-                    b.HasOne("Redpeper.Model.User", "User")
+                    b.HasOne("Redpeper.Model.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("CustomerId");
                 });
 #pragma warning restore 612, 618
         }

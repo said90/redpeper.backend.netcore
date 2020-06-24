@@ -78,21 +78,19 @@ namespace Redpeper.Controllers
         [HttpPut]
         public async Task<ActionResult<Table>> Update([FromBody] Table table)
         {
+            try {
 
-            try
-            {
-                if (table.UserId ==0)
+                if (table.CustomerId ==0)
                 {
                     var customer = new Customer
                     {
-                        Name = table.UserName,
-                        Lastname = table.UserLastName
+                        Name = table.CustomerName,
+                        Lastname = table.CustomerLastName
                     };
                     _customerRepository.Create(customer);
                     await _unitOfWork.Commit();
-                    table.UserId = customer.Id;
+                    table.CustomerId = customer.Id;
                 }
-
                 _tableRepository.Update(table);
                 await _unitOfWork.Commit();
                 return Ok(table);
