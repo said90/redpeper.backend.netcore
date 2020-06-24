@@ -31,7 +31,7 @@ namespace Redpeper.Repositories.Tables
 
         public async Task<Table> GetById(int id)
         {
-            return await _dataContext.Tables.FirstOrDefaultAsync(x=> x.Id ==id);
+            return await _dataContext.Tables.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Table> GetByName(string name)
