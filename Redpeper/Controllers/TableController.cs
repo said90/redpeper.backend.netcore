@@ -20,11 +20,12 @@ namespace Redpeper.Controllers
     {
         private readonly ITableRepository _tableRepository;
         private readonly IUnitOfWork _unitOfWork;
-
-        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork)
+        private readonly ICustomerRepository _customerRepository;
+        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork, ICustomerRepository customerRepository)
         {
             _tableRepository = tableRepository;
             _unitOfWork = unitOfWork;
+            _customerRepository = customerRepository;
         }
 
         [HttpGet]
@@ -73,15 +74,28 @@ namespace Redpeper.Controllers
             }
         }
 
+
         [HttpPut]
         public async Task<ActionResult<Table>> Update([FromBody] Table table)
         {
 
             try
             {
+                if (table.UserId ==0)
+                {
+                    var customer = new Customer
+                    {
+                        Name = table.UserName,
+                        Lastname = table.UserLastName
+                    };
+                    _customerRepository.Create(customer);
+                    await _unitOfWork.Commit();
+                    table.UserId = customer.Id;
+                }
+
                 _tableRepository.Update(table);
                 await _unitOfWork.Commit();
-                return table;
+                return Ok(table);
             }
             catch (Exception e)
             {

@@ -21,7 +21,7 @@ namespace Redpeper.Repositories.Tables
 
         public async Task<List<Table>> GetAll()
         {
-            return await _dataContext.Tables.ToListAsync();
+            return await _dataContext.Tables.Include(x=>x.User).ToListAsync();
         }
 
         public async Task<PagedList<Table>> GetPaginated(int pageNumber, int pageSize, string sort)
