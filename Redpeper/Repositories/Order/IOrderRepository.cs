@@ -10,6 +10,7 @@ namespace Redpeper.Repositories.Orders
         Task<List<Model.Order>> GetAll();
         Task<Model.Order> GetById(int id);
         Task<Model.Order> GetByOrderNumber(string number);
+        Task<int> GetOrderNumber();
         Task<List<Model.Order>> GetOrdersByStatus(string status);
         void Create(Model.Order order);
         void Update(Model.Order order);

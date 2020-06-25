@@ -19,7 +19,7 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<Model.Order>> GetAll()
         {
-            return await _dataContext.Orders.Include(x=>x.OrderDetails).ToListAsync();
+            return await _dataContext.Orders.Include(x=> x.Table).Include(x=>x.Customer).Include(x=>x.OrderDetails).ToListAsync();
         }
 
         public async Task<Model.Order> GetById(int id)
@@ -30,6 +30,11 @@ namespace Redpeper.Repositories.Order
         public async Task<Model.Order> GetByOrderNumber(string number)
         {
             return await _dataContext.Orders.FirstOrDefaultAsync(x => x.OrderNumber == number);
+        }
+
+        public async Task<int> GetOrderNumber()
+        {
+            return await _dataContext.Orders.CountAsync();
         }
 
         public async Task<List<Model.Order>> GetOrdersByStatus(string status)

@@ -21,7 +21,7 @@ namespace Redpeper.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
-        private ICustomerRepository _customerRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IHubContext<OrderHub> _orderHub;
         private readonly IUnitOfWork _unitOfWork;
@@ -62,40 +62,42 @@ namespace Redpeper.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult<OrderDto>> CreateOrder(OrderDto order)
         {
-            var customer = new Customer();
-            if (order.CustomerId == null)
+            try
             {
-                customer.Name = order.Name;
-                customer.Lastname = order.LastName;
-                
-                _customerRepository.Create(customer);
+                var or = new Order
+                {
+                    CustomerId = order.CustomerId,
+                    TableId = order.TableId,
+                    Date = DateTime.Now,
+                    Total = order.Total,
+                    Status = "Abierta"
+                };
+                or.OrderNumber = "O-" + (await _orderRepository.GetOrderNumber()+1);
+                _orderRepository.Create(or);
                 await _unitOfWork.Commit();
-            }
-            var or = new Order
-            {
-                CustomerId = customer.Id,
-                Date = DateTime.Now,
-                OrderNumber = order.OrderNumber,
-                Status = "Abierta"
-            };
-            
-            _orderRepository.Create(or);
-            await _unitOfWork.Commit();
 
-            var details = order.OrderDetails.Select(x => new OrderDetail
+                var details = order.OrderDetails.Select(x => new OrderDetail
+                {
+                    DishId = x.DishId != 0 ? x.DishId : null,
+                    ComboId = x.ComboId != 0 ? x.ComboId : null,
+                    Discount = x.Discount,
+                    Qty = x.Qty,
+                    OrderId = or.Id,
+                    Status = "En Cola",
+                    Total = x.Total,
+                    UnitPrice = x.UnitPrice
+                }).ToList();
+                _orderDetailRepository.CreateRange(details);
+                await _unitOfWork.Commit();
+                //await _orderHub.Clients.All.SendAsync("ReceiveOrder", order);
+                return order;
+            }
+            catch (Exception e)
             {
-                DishId = x.DishId,
-                Discount = 0,
-                Qty = x.Qty,
-                OrderId = x.OrderId,
-                Status = "En Cola",
-                Total = x.Total,
-                UnitPrice = x.UnitPrice
-            }).ToList();
-            _orderDetailRepository.CreateRange(details);
-            await _unitOfWork.Commit();
-            await _orderHub.Clients.All.SendAsync("ReceiveOrder", order);
-            return order;
+                return BadRequest(e);
+
+            }
+
         }
     }
 }

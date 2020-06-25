@@ -22,8 +22,10 @@ using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Inventory;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Order.Dishes;
+using Redpeper.Repositories.Orders;
 using Redpeper.Repositories.Tables;
 using Redpeper.Services.Inventory;
 
@@ -82,6 +84,9 @@ namespace Redpeper
             services.AddScoped<IComboRepository, ComboRepository>();
             services.AddScoped<IComboDetailRepository, ComboDetailRepository>();
             services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSignalR();
