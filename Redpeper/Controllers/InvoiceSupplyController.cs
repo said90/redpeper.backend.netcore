@@ -82,7 +82,8 @@ namespace Redpeper.Controllers
                 InvoiceNumber = invoice.InvoiceNumber,
                 EmissionDate = invoice.EmissionDate,
                 ProviderId = invoice.ProviderId,
-                Total = invoice.Total
+                Total = invoice.Total,
+                Iva = invoice.Iva
             };
             _supplyInvoiceRepository.Create(inv);
             await _unitOfWork.Commit();

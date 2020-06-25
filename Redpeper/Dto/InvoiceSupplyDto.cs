@@ -13,6 +13,7 @@ namespace Redpeper.Dto
         public DateTime EmissionDate { get; set; }
         public int ProviderId { get; set; }
         public double Total { get; set; }
-        public  List<SupplyInvoiceDetail> Details { get; set; }
+        public List<SupplyInvoiceDetail> Details { get; set; }
+        public bool Iva { get; set; }
     }
 }
