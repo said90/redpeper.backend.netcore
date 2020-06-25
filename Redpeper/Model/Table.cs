@@ -14,7 +14,7 @@ namespace Redpeper.Model
         public int? CustomerId { get; set; }
         public string CustomerName { get; set; }
         public string CustomerLastName { get; set; }
-        public double Chairs { get; set; }
+        public int Chairs { get; set; }
         public int State { get; set; }
         public virtual Customer Customer { get; set; }
     }
