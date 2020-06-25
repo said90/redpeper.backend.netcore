@@ -78,9 +78,10 @@ namespace Redpeper.Controllers
         [HttpPut]
         public async Task<ActionResult<Table>> Update([FromBody] Table table)
         {
-            try {
+            try
+            {
 
-                if (table.CustomerId ==0)
+                if (table.CustomerId == null)
                 {
                     var customer = new Customer
                     {
