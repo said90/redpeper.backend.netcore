@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,9 +66,28 @@ namespace Redpeper
                     };
                 });
             services.AddTransient<SeedDb>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("ReactClient", policy =>
+                {
+                    policy.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .WithOrigins("http://localhost:3000")
+                        .AllowCredentials();
+                });
+            });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("MobileClient", policy =>
+                {
+                    policy.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .WithOrigins("http://localhost:19002")
+                        .AllowCredentials();
+                });
+            });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddCors();
+            services.AddMvc();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IProviderRepository, ProviderRepository>();
@@ -100,24 +120,17 @@ namespace Redpeper
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+
+            app.UseCors("ReactClient");
+            app.UseCors("MobileClient");
 
             app.UseAuthentication();
-            app.UseCookiePolicy();
-            app.UseCors(config => config.AllowAnyMethod().AllowAnyHeader().WithExposedHeaders("X-Pagination")
-                    .WithOrigins("*")
-                    .WithMethods("*")
-                    .WithHeaders("*")
-                    .DisallowCredentials()
-                    .WithExposedHeaders("X-Pagination")
-            );
-            app.UseSignalR(x =>
-            x.MapHub<OrderHub>("/orderHub"));
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<OrderHub>("/redpeper/app");
+            });
             app.UseMvc();
+
         }
     }
 }

@@ -102,6 +102,34 @@ namespace Redpeper.Controllers
                 return BadRequest(e);
             }
         }
+        [HttpPatch]
+        public async Task<ActionResult<Table>> Change([FromBody] Table table)
+        {
+            try
+            {
+
+                if (table.CustomerId == 0)
+                {
+                    var customer = new Customer
+                    {
+                        Name = table.CustomerName,
+                        Lastname = table.CustomerLastName
+                    };
+                    _customerRepository.Create(customer);
+                    await _unitOfWork.Commit();
+                    table.CustomerId = customer.Id;
+                }
+
+                _tableRepository.Update(table);
+                await _unitOfWork.Commit();
+                return Ok(table);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e);
+            }
+        }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<Table>> Remove(int id)

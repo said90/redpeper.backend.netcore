@@ -16,6 +16,7 @@ namespace Redpeper.Model
         public double Qty { get; set; }
         public double UnitPrice { get; set; }
         public double Discount { get; set; }
+        public string Comments { get; set; }
         public double Total { get; set; }
         public string Status { get; set; }
     }
