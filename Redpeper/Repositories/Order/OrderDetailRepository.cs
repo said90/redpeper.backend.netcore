@@ -17,6 +17,16 @@ namespace Redpeper.Repositories.Order
             _dataContext = dataContext;
         }
 
+        public async Task<OrderDetail> GetById(int id)
+        {
+            return await _dataContext.OrderDetails.FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<List<OrderDetail>> GetByRangeId(List<int> ids)
+        {
+            return await _dataContext.OrderDetails.Where(x => ids.Contains(x.Id)).ToListAsync();
+        }
+        
         public async Task<List<OrderDetail>> GetByOrderId(int id)
         {
             return await _dataContext.OrderDetails.Where(x => x.OrderId == id).ToListAsync();

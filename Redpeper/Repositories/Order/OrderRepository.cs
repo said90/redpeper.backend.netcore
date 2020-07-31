@@ -27,6 +27,11 @@ namespace Redpeper.Repositories.Order
             return await _dataContext.Orders.FirstOrDefaultAsync(x=> x.Id == id);
         }
 
+        public async Task<List<Model.Order>> GetByRangeId(List<int> ids)
+        {
+            return await _dataContext.Orders.Include(x=>x.OrderDetails).Where(x => ids.Contains(x.Id)).ToListAsync();
+        }
+
         public async Task<Model.Order> GetByOrderNumber(string number)
         {
             return await _dataContext.Orders.FirstOrDefaultAsync(x => x.OrderNumber == number);
@@ -50,6 +55,11 @@ namespace Redpeper.Repositories.Order
         public void Update(Model.Order order)
         {
             _dataContext.Orders.Update(order);
+        }
+
+        public void UpdateRange(List<Model.Order> orders)
+        {
+            _dataContext.Orders.UpdateRange(orders);
         }
 
         public void Remove(Model.Order order)
