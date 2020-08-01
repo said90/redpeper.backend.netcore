@@ -14,6 +14,7 @@ namespace Redpeper.Repositories.Tables
         Task<PagedList<Table>> GetPaginated(int pageNumber, int pageSize, string sort);
 
         Task<Table> GetById(int id);
+        Task<List<Table>> GetByIdRange(List<int> ids);
         Task<Table> GetByName(string name);
         void Create(Table table);
         void Update(Table table);

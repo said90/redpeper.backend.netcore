@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Redpeper.Collection;
+using Redpeper.Hubs;
+using Redpeper.Hubs.Clients;
 using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Tables;
@@ -21,11 +24,14 @@ namespace Redpeper.Controllers
         private readonly ITableRepository _tableRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICustomerRepository _customerRepository;
-        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork, ICustomerRepository customerRepository)
+        private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
+
+        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork, ICustomerRepository customerRepository, IHubContext<OrderHub, IOrderClient> orderHub)
         {
             _tableRepository = tableRepository;
             _unitOfWork = unitOfWork;
             _customerRepository = customerRepository;
+            _orderHub = orderHub;
         }
 
         [HttpGet]
@@ -106,6 +112,7 @@ namespace Redpeper.Controllers
                 table.State = 1;
                 _tableRepository.Update(table);
                 await _unitOfWork.Commit();
+                await _orderHub.Clients.All.BussyTable(table);
                 return Ok(table);
             }
             catch (Exception e)

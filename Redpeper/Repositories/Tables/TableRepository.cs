@@ -34,6 +34,12 @@ namespace Redpeper.Repositories.Tables
             return await _dataContext.Tables.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<List<Table>> GetByIdRange(List<int> ids)
+        {
+            return await _dataContext.Tables.Where(x => ids.Contains(x.Id)).ToListAsync();
+
+        }
+
         public async Task<Table> GetByName(string name)
         {
             return await _dataContext.Tables.FirstOrDefaultAsync(x => x.Name == name);

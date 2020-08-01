@@ -13,6 +13,7 @@ using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Orders;
+using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Controllers
 {
@@ -26,18 +27,20 @@ namespace Redpeper.Controllers
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
 
         private readonly IOrderDetailRepository _orderDetailRepository;
+        private ITableRepository _tableRepository;
         private readonly IUnitOfWork _unitOfWork;
 
 
         public OrderController(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository,
             IUnitOfWork unitOfWork, ICustomerRepository customerRepository,
-            IHubContext<OrderHub, IOrderClient> orderHub)
+            IHubContext<OrderHub, IOrderClient> orderHub, ITableRepository tableRepository)
         {
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
             _unitOfWork = unitOfWork;
             _customerRepository = customerRepository;
             _orderHub = orderHub;
+            _tableRepository = tableRepository;
         }
 
         [HttpGet]
@@ -251,6 +254,7 @@ namespace Redpeper.Controllers
                         }
                         _orderRepository.UpdateRange(orders);
                         await _unitOfWork.Commit();
+                        await _orderHub.Clients.All.PreSaleOrders(orders);
                         return Ok(orders);
                     case 3:
                         orders.ForEach(x =>
@@ -275,6 +279,10 @@ namespace Redpeper.Controllers
                         }
                         _orderRepository.UpdateRange(orders);
                         await _unitOfWork.Commit();
+                        await _orderHub.Clients.All.ChargedOrders(orders);
+                        var tablesId = orders.Select(x => x.TableId).ToList();
+                        var tables = await _tableRepository.GetByIdRange(tablesId);
+                        await _orderHub.Clients.All.FreeTable(tables);
                         return Ok();
 
                     default:
