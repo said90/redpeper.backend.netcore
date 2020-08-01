@@ -135,6 +135,7 @@ namespace Redpeper.Controllers
                 {
                     return BadRequest(new {errors = "Only send details with state 'En Cola', the update was not applied ", orderDetailsNotValidState});
                 }
+                orderDetailsToUpdate.ForEach(x=>x.Status= "En Cola");
                 _orderDetailRepository.UpdateRange(orderDetailsToUpdate);
                 await _unitOfWork.Commit();
 
