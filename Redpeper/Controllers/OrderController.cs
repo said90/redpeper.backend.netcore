@@ -105,7 +105,7 @@ namespace Redpeper.Controllers
                 order.Id = or.Id;
                 order.OrderNumber = or.OrderNumber;
                 await _orderHub.Clients.All.OrderCreated(order);
-                return order;
+                return Ok(order);
             }
             catch (Exception e)
             {
@@ -113,22 +113,38 @@ namespace Redpeper.Controllers
             }
         }
 
-        [HttpPost("[Action]/{id}")]
-        public async Task<IActionResult> UpdateOrder([FromQuery]int id,List<OrderDetail> orderDetailsDto)
+        [HttpPut("[Action]/{id}")]
+        public async Task<IActionResult> UpdateOrderDetails(int id,[FromBody]List<OrderDetail> orderDetailsToUpdate)
         {
-            if (id !=0 && orderDetailsDto!=null)
+            if (id !=0 && orderDetailsToUpdate.Count>0)
             {
-                var order = await _orderRepository.GetById(id);
-                var orderDetailsToRemove = order.OrderDetails.Where(x => !orderDetailsDto.Contains(x)).ToList();
-                _orderDetailRepository.RemoveRange(orderDetailsToRemove);
-                _orderDetailRepository.UpdateRange(orderDetailsDto);
+                var orderAsNoTracking = await _orderRepository.GetByIdNoTracking(id);
+                if (orderAsNoTracking==null)
+                {
+                    return BadRequest(new {errors="This order doesn't exist", id });
+                }
+
+                var orderDetailsToRemove = orderAsNoTracking.OrderDetails.Where(x => !orderDetailsToUpdate.Select(y=>y.Id).Contains(x.Id) && x.Status.Equals("En Cola")).ToList();
+                if (orderDetailsToRemove.Count>=1)
+                {
+                    _orderDetailRepository.RemoveRange(orderDetailsToRemove);
+                }
+
+                var orderDetailsNotValidState = orderAsNoTracking.OrderDetails.Where(x => orderDetailsToUpdate.Select(y => y.Id).Contains(x.Id) && !x.Status.Equals("En Cola")).ToList();
+                if (orderDetailsNotValidState.Count>=1)
+                {
+                    return BadRequest(new {errors = "Only send details with state 'En Cola', the update was not applied ", orderDetailsNotValidState});
+                }
+                _orderDetailRepository.UpdateRange(orderDetailsToUpdate);
                 await _unitOfWork.Commit();
-                order.Total = (decimal)order.OrderDetails.Sum(x => x.Total);
+
+                var order = await _orderRepository.GetById(id);
+                order.Total = (decimal)orderDetailsToUpdate.Sum(x => x.Total);
                 _orderRepository.Update(order);
                 await _unitOfWork.Commit();
-                return Ok(order);
+                return Ok(new{orderDetailsToUpdate, orderDetailsToRemove});
             }
-            return BadRequest(new BadRequestObjectResult("Null parameters received"));
+            return BadRequest(new BadRequestObjectResult(new { errors = "Null parameter received", orderDetailsToUpdate }));
         }
 
         [HttpPatch("[action]")]
@@ -137,45 +153,46 @@ namespace Redpeper.Controllers
             if (orderDetails.DetailsId != null && orderDetails.DetailsId.Any(x => x != 0))
             {
                 var details = await _orderDetailRepository.GetByRangeId(orderDetails.DetailsId);
-
+                var detailsWithDifferentState = new List<OrderDetail>();
                 switch (orderDetails.Status)
                 {
                     case 2:
                         //todo aqui debo de hacer el ajuste de inventario,disminuir el inventario
 
-                        details.ForEach(x =>
+                        details.ForEach(x => { if (x.Status.Equals("En Cola")) { x.Status = "En Proceso"; }else { detailsWithDifferentState.Add(x); } });
+                       
+                        if (detailsWithDifferentState.Count >=1)
                         {
-                            if (x.Status.Equals("En Cola"))
-                            {
-                                x.Status = "En Proceso";
-                            }
-                        });
+                            return BadRequest(new { errors = "Only send details with state 'En Cola'", detailsWithDifferentState });
+
+                        }
+
                         _orderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsInProcess(details);
                         return Ok(details);
 
                     case 3:
-                        details.ForEach(x =>
+                        details.ForEach(x => { if (x.Status.Equals("En Proceso")) { x.Status = "Finalizado"; }else { detailsWithDifferentState.Add(x); } });
+
+                        if (detailsWithDifferentState.Count >= 1)
                         {
-                            if (x.Status.Equals("En Proceso"))
-                            {
-                                x.Status = "Finalizado";
-                            }
-                        });
+                            return BadRequest(new { errors = "Only send details with state 'En Proceso'", detailsWithDifferentState });
+
+                        }
                         _orderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsFinished(details);
                         return Ok(details);
 
                     case 4:
-                        details.ForEach(x =>
+                        details.ForEach(x => { if (x.Status.Equals("Finalizado")) { x.Status = "Entregado"; }else { detailsWithDifferentState.Add(x); } });
+                        
+                        if (detailsWithDifferentState.Count >= 1)
                         {
-                            if (x.Status.Equals("Finalizado"))
-                            {
-                                x.Status = "Entregado";
-                            }
-                        });
+                            return BadRequest(new { errors = "Only send details with state 'Finalizado'", detailsWithDifferentState });
+
+                        }
                         _orderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsFinished(details);
@@ -194,28 +211,34 @@ namespace Redpeper.Controllers
             if (orderToChange.DetailsId != null && orderToChange.DetailsId.Any(x => x != 0))
             {
                 var orders = await _orderRepository.GetByRangeId(orderToChange.DetailsId);
-                bool allFinished = new bool();
+
+                var incompletedOrders = new List<Order>();
+                var incompletedDetails = new List<OrderDetail>();
 
                 switch (orderToChange.Status)
                 {
                     case 2:
                         orders.ForEach(x =>
                         {
-                             allFinished = x.OrderDetails.Any(y => y.Status.Equals("Entregado"));
-                            if (x.Status.Equals("Abierta" ) && allFinished)
+                            incompletedDetails = x.OrderDetails.Where(y => !y.Status.Equals("Entregado")).ToList();
+                            if (x.Status.Equals("Abierta" ) && incompletedDetails.Count==0)
                             {
                                 x.Status = "Preventa";
                             }
+                            else
+                            {
+                                incompletedOrders.Add(x);
+                            }
 
                         });
-                        if (allFinished !=true )
+                        if (incompletedDetails.Count >=1 )
                         {
-                            return BadRequest(new BadRequestObjectResult("Not all the details are in state Entregado"));
+                            return BadRequest(new BadRequestObjectResult(new { errors = "Not all the details are in state 'Entregado'", incompletedDetails }));
                         }
 
                         if (orders.Any(x=>x.Status.Equals("Abierta")))
                         {
-                            return BadRequest(new BadRequestObjectResult("Any of the Orders are not in state Abierta"));
+                            return BadRequest(new BadRequestObjectResult(new{errors="Any of the Orders are not in state Abierta", incompletedOrders }));
 
                         }
                         _orderRepository.UpdateRange(orders);
@@ -224,21 +247,22 @@ namespace Redpeper.Controllers
                     case 3:
                         orders.ForEach(x =>
                         {
-                             allFinished = x.OrderDetails.Any(y => y.Status.Equals("Entregado"));
-                            if (x.Status.Equals("Preventa") && allFinished)
+                            incompletedDetails = x.OrderDetails.Where(y => !y.Status.Equals("Entregado")).ToList();
+
+                            if (x.Status.Equals("Preventa")  && incompletedDetails.Count == 0)
                             {
                                 x.Status = "Cobrado";
                             }
 
                         });
-                        if (allFinished != true)
+                        if (incompletedDetails.Count >=1 )
                         {
-                            return BadRequest(new BadRequestObjectResult("Not all the details are in state Entregado"));
+                            return BadRequest(new BadRequestObjectResult(new { errors = "Not all the details are in state 'Entregado'", incompletedDetails }));
                         }
 
                         if (orders.Any(x => x.Status.Equals("Preventa")))
                         {
-                            return BadRequest(new BadRequestObjectResult("Any of the Orders are not in state Preventa"));
+                            return BadRequest(new BadRequestObjectResult(new {errors="Any of the Orders are not in state Preventa",orders}));
 
                         }
                         _orderRepository.UpdateRange(orders);

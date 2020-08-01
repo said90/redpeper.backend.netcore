@@ -9,6 +9,7 @@ namespace Redpeper.Repositories.Orders
     {
         Task<List<Model.Order>> GetAll();
         Task<Model.Order> GetById(int id);
+        Task<Model.Order> GetByIdNoTracking(int id);
         Task<List<Model.Order>> GetByRangeId(List<int> ids);
         Task<Model.Order> GetByOrderNumber(string number);
         Task<int> GetOrderNumber();

@@ -24,7 +24,13 @@ namespace Redpeper.Repositories.Order
 
         public async Task<Model.Order> GetById(int id)
         {
-            return await _dataContext.Orders.FirstOrDefaultAsync(x=> x.Id == id);
+            return await _dataContext.Orders.Include(x=>x.OrderDetails).FirstOrDefaultAsync(x=> x.Id == id);
+        }
+
+        public async Task<Model.Order> GetByIdNoTracking(int id)
+        {
+            return await _dataContext.Orders.Include(x => x.OrderDetails).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
         }
 
         public async Task<List<Model.Order>> GetByRangeId(List<int> ids)
