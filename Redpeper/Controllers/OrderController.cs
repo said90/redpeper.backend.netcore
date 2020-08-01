@@ -196,7 +196,7 @@ namespace Redpeper.Controllers
                         }
                         _orderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
-                        await _orderHub.Clients.All.DetailsFinished(details);
+                        await _orderHub.Clients.All.DetailsDelivered(details);
                         return Ok(details);
                     default:
                         return BadRequest(new BadRequestObjectResult("Invalid Status Provided"));

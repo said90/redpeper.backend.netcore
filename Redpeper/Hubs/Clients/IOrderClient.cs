@@ -12,6 +12,8 @@ namespace Redpeper.Hubs.Clients
         Task OrderCreated(OrderDto message);
         Task DetailsInProcess(List<OrderDetail> details);
         Task DetailsFinished(List<OrderDetail> details);
+        Task DetailsDelivered(List<OrderDetail> details);
+
 
 
     }
