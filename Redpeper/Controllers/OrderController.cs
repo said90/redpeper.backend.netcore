@@ -118,10 +118,17 @@ namespace Redpeper.Controllers
         {
             if (id !=0 && orderDetailsToUpdate.Count>0)
             {
+
                 var orderAsNoTracking = await _orderRepository.GetByIdNoTracking(id);
                 if (orderAsNoTracking==null)
                 {
                     return BadRequest(new {errors="This order doesn't exist", id });
+                }
+
+                if (orderDetailsToUpdate.Any(x=> x.OrderId!= id))
+                {
+                    return BadRequest(new { errors = "The order id Provided  not match with  order Details", id, orderDetailsToUpdate });
+
                 }
 
                 var orderDetailsToRemove = orderAsNoTracking.OrderDetails.Where(x => !orderDetailsToUpdate.Select(y=>y.Id).Contains(x.Id) && x.Status.Equals("En Cola")).ToList();
@@ -277,6 +284,6 @@ namespace Redpeper.Controllers
             return BadRequest(new BadRequestObjectResult("Null Value Detected in details"));
         }
 
-
+        
     }
 }

@@ -81,17 +81,6 @@ namespace Redpeper.Controllers
             try
             {
 
-                if (table.CustomerId == null)
-                {
-                    var customer = new Customer
-                    {
-                        Name = table.CustomerName,
-                        Lastname = table.CustomerLastName
-                    };
-                    _customerRepository.Create(customer);
-                    await _unitOfWork.Commit();
-                    table.CustomerId = customer.Id;
-                }
                 _tableRepository.Update(table);
                 await _unitOfWork.Commit();
                 return Ok(table);
@@ -102,31 +91,25 @@ namespace Redpeper.Controllers
                 return BadRequest(e);
             }
         }
-        [HttpPatch]
-        public async Task<ActionResult<Table>> Change([FromBody] Table table)
+        [HttpPatch("[action]/{id}")]
+        public async Task<ActionResult<Table>> ChangeTableState(int id,Customer customer)
         {
             try
             {
-
-                if (table.CustomerId == 0)
+                if (customer.Id== 0)
                 {
-                    var customer = new Customer
-                    {
-                        Name = table.CustomerName,
-                        Lastname = table.CustomerLastName
-                    };
                     _customerRepository.Create(customer);
                     await _unitOfWork.Commit();
-                    table.CustomerId = customer.Id;
                 }
-
+                var table = await _tableRepository.GetById(id);
+                table.CustomerId = customer.Id;
+                table.State = 1;
                 _tableRepository.Update(table);
                 await _unitOfWork.Commit();
                 return Ok(table);
             }
             catch (Exception e)
             {
-
                 return BadRequest(e);
             }
         }
