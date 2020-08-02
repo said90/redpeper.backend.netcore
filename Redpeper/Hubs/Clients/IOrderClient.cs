@@ -13,6 +13,7 @@ namespace Redpeper.Hubs.Clients
         Task DetailsInProcess(List<OrderDetail> details);
         Task DetailsFinished(List<OrderDetail> details);
         Task DetailsDelivered(List<OrderDetail> details);
+        Task DetailsUpdated(Order order);
         Task BussyTable(Table table);
         Task FreeTable(List<Table> tables);
         Task PreSaleOrders(List<Order> orders);

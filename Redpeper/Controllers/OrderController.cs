@@ -153,6 +153,7 @@ namespace Redpeper.Controllers
                 order.Total = (decimal)orderDetailsToUpdate.Sum(x => x.Total);
                 _orderRepository.Update(order);
                 await _unitOfWork.Commit();
+                await _orderHub.Clients.All.DetailsUpdated(order);
                 return Ok(new{orderDetailsToUpdate, orderDetailsToRemove});
             }
             return BadRequest(new BadRequestObjectResult(new { errors = "Null parameter received", orderDetailsToUpdate }));
