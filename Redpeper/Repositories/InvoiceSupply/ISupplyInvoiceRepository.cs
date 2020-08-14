@@ -6,20 +6,14 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.InvoiceSupply
 {
-    public interface ISupplyInvoiceRepository
+    public interface ISupplyInvoiceRepository :IRepository<SupplyInvoice>
     {
-        Task<List<SupplyInvoice>> GetAll();
-        Task<PagedList<SupplyInvoice>> GetPaginated(int pageNumber, int pageSize, string sort);
-
-        Task<SupplyInvoice> GetById(int id);
+        Task<List<SupplyInvoice>> GetAllIncludingDetails();
+        Task<SupplyInvoice> GetByIdIncludingDetails(int id);
         Task<int> GetMaxInvoice();
         Task<SupplyInvoice> GetByInvoiceNumber(string number);
         Task<List<SupplyInvoice>> GetByProvider(int id);
         Task<List<SupplyInvoice>> GetByDate(DateTime date);
         Task<List<SupplyInvoice>> GetByDateRange(DateTime initialDate, DateTime endDate);
-        void Create(SupplyInvoice supplyInvoice);
-        void Update(SupplyInvoice supplyInvoice);
-        void Remove(SupplyInvoice supplyInvoice);
-
     }
 }

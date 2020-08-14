@@ -10,48 +10,21 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories
 {
-    public class SupplyRepository : ISupplyRepository
+    public class SupplyRepository :BaseRepository<Supply>,ISupplyRepository
     {
-        private readonly DataContext _dataContext;
-
-        public SupplyRepository(DataContext dataContext)
+        public SupplyRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
         }
 
-        public async Task<List<Supply>> GetAll()
+        public async Task<List<Supply>> GetAllOrderById()
         {
-            return await _dataContext.Supplies.OrderBy(x => x.Id).ToListAsync();
-        }
-
-        public async Task<PagedList<Supply>> GetPaginated(int pageNumber, int pageSize, string sort)
-        {
-            return await _dataContext.Supplies.ToPagedListAsync(pageNumber, pageSize, sort);
-        }
-
-        public async Task<Supply> GetById(int id)
-        {
-            return await _dataContext.Supplies.FirstOrDefaultAsync(x => x.Id == id);
+            return await _entities.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<Supply> GetByName(string name)
         {
-            return await _dataContext.Supplies.FirstOrDefaultAsync(x => x.Name == name);
+            return await _entities.FirstOrDefaultAsync(x => x.Name == name);
         }
-
-        public void  Create(Supply supply)
-        {
-            _dataContext.Supplies.Add(supply);
-        }
-
-        public void Update(Supply supply)
-        {
-            _dataContext.Supplies.Update(supply);
-        }
-
-        public void Remove(Supply supply)
-        {
-            _dataContext.Supplies.Remove(supply);
-        }
+       
     }
 }

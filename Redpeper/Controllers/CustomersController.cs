@@ -16,12 +16,10 @@ namespace Redpeper.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly ICustomerRepository _customerRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CustomersController(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+        public CustomersController( IUnitOfWork unitOfWork)
         {
-            _customerRepository = customerRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -29,13 +27,13 @@ namespace Redpeper.Controllers
         public async Task<ActionResult<List<Customer>>> GetAll()
         {
 
-            return await _customerRepository.GetAll();
+            return await _unitOfWork.CustomerRepository.GetAllOrderById();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> Get(int id)
         {
-            var customer = await _customerRepository.GetById(id);
+            var customer = await _unitOfWork.CustomerRepository.GetByIdTask(id);
 
             if (customer == null)
             {
@@ -51,7 +49,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _customerRepository.Create(customer);
+                await _unitOfWork.CustomerRepository.InsertTask(customer);
                 await _unitOfWork.Commit();
                 return customer;
             }
@@ -68,7 +66,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _customerRepository.Update(customer);
+                 _unitOfWork.CustomerRepository.Update(customer);
                 await _unitOfWork.Commit();
                 return Ok(customer);
             }
@@ -83,13 +81,12 @@ namespace Redpeper.Controllers
         [HttpDelete]
         public async Task<ActionResult<Customer>> Remove(int id)
         {
-            var customer = await _customerRepository.GetById(id);
+            var customer = await _unitOfWork.CustomerRepository.GetByIdTask(id);
             if (customer == null)
             {
                 return NotFound();
             }
-
-            _customerRepository.Remove(customer);
+            await _unitOfWork.CustomerRepository.DeleteTask(id);
             await _unitOfWork.Commit();
             return customer;
         }

@@ -8,48 +8,27 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories
 {
-    public class CustomerRepository :ICustomerRepository
+    public class CustomerRepository :BaseRepository<Customer>,ICustomerRepository
     {
-        private DataContext _dataContext;
-
-        public CustomerRepository(DataContext dataContext)
+        public CustomerRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
         }
 
-        public async Task<List<Customer>> GetAll()
+        public async Task<List<Customer>> GetAllOrderById()
         {
-            return await _dataContext.Customers.OrderBy(x => x.Id).ToListAsync();
+            return await _entities.OrderBy(x => x.Id).ToListAsync();
         }
 
-        public async Task<Customer> GetById(int id)
-        {
-            return await _dataContext.Customers.FirstOrDefaultAsync(x => x.Id == id);
-        }
 
         public async Task<Customer> GetByDui(string dui)
         {
-            return await _dataContext.Customers.FirstOrDefaultAsync(x => x.Dui == dui);
+            return await _entities.FirstOrDefaultAsync(x => x.Dui == dui);
         }
 
         public async Task<Customer> GetByFullName(string name, string lastname)
         {
-            return await _dataContext.Customers.FirstOrDefaultAsync(x => x.Name == name && x.Lastname == lastname);
+            return await _entities.FirstOrDefaultAsync(x => x.Name == name && x.Lastname == lastname);
         }
 
-        public void Create(Customer cliente)
-        {
-            _dataContext.Customers.Add(cliente);
-        }
-
-        public void Update(Customer cliente)
-        {
-            _dataContext.Customers.Update(cliente);
-        }
-
-        public void Remove(Customer cliente)
-        {
-            _dataContext.Customers.Remove(cliente); ;
-        }
-    }
+   }
 }

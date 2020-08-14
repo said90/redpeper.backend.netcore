@@ -22,24 +22,21 @@ namespace Redpeper.Controllers
     [ApiController]
     public class InvoiceSupplyController : ControllerBase
     {
-        private readonly ISupplyInvoiceRepository _supplyInvoiceRepository;
-        private readonly ISupplyInvoiceDetailRepository _supplyInvoiceDetailRepository;
+      
         private readonly IInventoryService _inventoryService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceSupplyController(ISupplyInvoiceRepository supplyInvoiceRepository, IUnitOfWork unitOfWork,
-            ISupplyInvoiceDetailRepository supplyInvoiceDetailRepository, IInventoryService inventoryService)
+        public InvoiceSupplyController( IUnitOfWork unitOfWork,
+             IInventoryService inventoryService)
         {
-            _supplyInvoiceRepository = supplyInvoiceRepository;
             _unitOfWork = unitOfWork;
-            _supplyInvoiceDetailRepository = supplyInvoiceDetailRepository;
             _inventoryService = inventoryService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<SupplyInvoice>>> GetAll()
         {
-            return await _supplyInvoiceRepository.GetAll();
+            return await _unitOfWork.SupplyInvoiceRepository.GetAllIncludingDetails();
         }
 
         // [HttpGet]
@@ -63,14 +60,14 @@ namespace Redpeper.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<SupplyInvoice>> GetInvoiceById(int id)
         {
-            return await _supplyInvoiceRepository.GetById(id);
+            return await _unitOfWork.SupplyInvoiceRepository.GetByIdIncludingDetails(id);
         }
 
 
         [HttpGet("[action]/{invoiceNumber}")]
         public async Task<ActionResult<SupplyInvoice>> GetInvoiceByNumber(string invoiceNumber)
         {
-            return await _supplyInvoiceRepository.GetByInvoiceNumber(invoiceNumber);
+            return await _unitOfWork.SupplyInvoiceRepository.GetByInvoiceNumber(invoiceNumber);
         }
 
         [HttpPost]
@@ -85,10 +82,10 @@ namespace Redpeper.Controllers
                 Total = invoice.Total,
                 Iva = invoice.Iva
             };
-            _supplyInvoiceRepository.Create(inv);
+            await _unitOfWork.SupplyInvoiceRepository.InsertTask(inv);
             await _unitOfWork.Commit();
 
-            var invoiceNew = await _supplyInvoiceRepository.GetMaxInvoice();
+            var invoiceNew = await _unitOfWork.SupplyInvoiceRepository.GetMaxInvoice();
 
             var details = invoice.Details.Select(x => new SupplyInvoiceDetail
             {
@@ -100,7 +97,7 @@ namespace Redpeper.Controllers
                 Total = x.Total
             }).ToList();
 
-            _supplyInvoiceDetailRepository.CreateRange(details);
+            await _unitOfWork.SupplyInvoiceDetailRepository.InsertRangeTask(details);
             await _unitOfWork.Commit();
             await _inventoryService.AddInvoiceDetailToInventory(invoice);
             return invoice;

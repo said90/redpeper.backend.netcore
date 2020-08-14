@@ -8,48 +8,27 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories
 {
-    public class EmployeeRepository : IEmployeeRepository
+    public class EmployeeRepository : BaseRepository<Employee>, IEmployeeRepository
     {
-        private DataContext _dataContext;
-
-        public EmployeeRepository(DataContext dataContext)
+        public EmployeeRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
         }
 
-        public async Task<List<Employee>> GetAll()
+        public async Task<List<Employee>> GetAllOrderById()
         {
-            return await _dataContext.Employees.OrderBy(x => x.Id).ToListAsync();
-        }
-
-        public async Task<Employee> GetById(int id)
-        {
-            return await _dataContext.Employees.FirstOrDefaultAsync(x => x.Id == id);
+            return await _entities.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<Employee> GetByDui(string dui)
         {
-            return await _dataContext.Employees.FirstOrDefaultAsync(x => x.Dui == dui);
+            return await _entities.FirstOrDefaultAsync(x => x.Dui == dui);
         }
 
         public async Task<Employee> GetByFullName(string name, string lastname)
         {
-            return await _dataContext.Employees.FirstOrDefaultAsync(x => x.Name == name && x.Lastname == lastname);
+            return await _entities.FirstOrDefaultAsync(x => x.Name == name && x.Lastname == lastname);
         }
-
-        public void Create(Employee empleado)
-        {
-            _dataContext.Employees.Add(empleado);
-        }
-
-        public void Update(Employee empleado)
-        {
-            _dataContext.Employees.Update(empleado);
-        }
-
-        public void Remove(Employee empleado)
-        {
-            _dataContext.Employees.Remove(empleado); ;
-        }
+        
+       
     }
 }

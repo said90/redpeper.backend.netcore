@@ -18,25 +18,23 @@ namespace Redpeper.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
-        private readonly IEmployeeRepository _employeeRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public EmployeesController(IEmployeeRepository employeeRepository, IUnitOfWork unitOfWork)
+        public EmployeesController(IUnitOfWork unitOfWork)
         {
-            _employeeRepository = employeeRepository;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Employee>>> GetEmpleados()
         {
-            return await _employeeRepository.GetAll();
+            return await _unitOfWork.EmployeeRepository.GetAllOrderById();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmpleado(int id)
         {
-            var employee = await _employeeRepository.GetById(id);
+            var employee = await _unitOfWork.EmployeeRepository.GetByIdTask(id);
 
             if (employee == null)
             {
@@ -51,7 +49,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _employeeRepository.Create(employee);
+                await _unitOfWork.EmployeeRepository.InsertTask(employee);
                 await _unitOfWork.Commit();
                 return employee;
             }
@@ -69,7 +67,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _employeeRepository.Update(employee);
+                _unitOfWork.EmployeeRepository.Update(employee);
                 await _unitOfWork.Commit();
                 return Ok(employee);
             }
@@ -84,13 +82,12 @@ namespace Redpeper.Controllers
         [HttpDelete]
         public async Task<ActionResult<Employee>> Remove(int id)
         {
-            var employee = await _employeeRepository.GetById(id);
+            var employee = await _unitOfWork.EmployeeRepository.GetByIdTask(id);
             if (employee == null)
             {
                 return NotFound();
             }
-
-            _employeeRepository.Remove(employee);
+            await _unitOfWork.EmployeeRepository.DeleteTask(id);
             await _unitOfWork.Commit();
 
             return employee;

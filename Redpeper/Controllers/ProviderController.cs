@@ -18,12 +18,10 @@ namespace Redpeper.Controllers
     [ApiController]
     public class ProviderController : ControllerBase
     {
-        private readonly IProviderRepository _providerRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ProviderController(IProviderRepository providerRepository, IUnitOfWork unitOfWork)
+        public ProviderController(IUnitOfWork unitOfWork)
         {
-            _providerRepository = providerRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -31,7 +29,7 @@ namespace Redpeper.Controllers
         public async Task<ActionResult<List<Provider>>> GetAll()
         {
 
-            return await _providerRepository.GetAll();
+            return await _unitOfWork.ProviderRepository.GetAllOrderById();
         }
 
         // [HttpGet]
@@ -55,7 +53,7 @@ namespace Redpeper.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Provider>> Get(int id)
         {
-            var provider = await _providerRepository.GetById(id);
+            var provider = await _unitOfWork.ProviderRepository.GetByIdTask(id);
 
             if (provider == null)
             {
@@ -71,7 +69,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _providerRepository.Create(provider);
+                await _unitOfWork.ProviderRepository.InsertTask(provider);
                 await _unitOfWork.Commit();
                 return provider;
             }
@@ -88,7 +86,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _providerRepository.Update(provider);
+                _unitOfWork.ProviderRepository.Update(provider);
                 await _unitOfWork.Commit();
                 return Ok(provider);
             }
@@ -103,13 +101,13 @@ namespace Redpeper.Controllers
         [HttpDelete]
         public async Task<ActionResult<Provider>> Remove(int id)
         {
-            var provider = await _providerRepository.GetById(id);
+            var provider = await _unitOfWork.ProviderRepository.GetByIdTask(id);
             if (provider == null)
             {
                 return NotFound();
             }
 
-            _providerRepository.Remove(provider);
+            await _unitOfWork.ProviderRepository.DeleteTask(id);
             await _unitOfWork.Commit();
             return provider;
         }

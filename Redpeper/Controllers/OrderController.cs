@@ -23,7 +23,6 @@ namespace Redpeper.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly ICustomerRepository _customerRepository;
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
 
         private readonly IOrderDetailRepository _orderDetailRepository;
@@ -32,13 +31,12 @@ namespace Redpeper.Controllers
 
 
         public OrderController(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository,
-            IUnitOfWork unitOfWork, ICustomerRepository customerRepository,
+            IUnitOfWork unitOfWork,
             IHubContext<OrderHub, IOrderClient> orderHub, ITableRepository tableRepository)
         {
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
             _unitOfWork = unitOfWork;
-            _customerRepository = customerRepository;
             _orderHub = orderHub;
             _tableRepository = tableRepository;
         }

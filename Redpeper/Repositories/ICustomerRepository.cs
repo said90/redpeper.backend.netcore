@@ -6,14 +6,11 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories
 {
-    public interface ICustomerRepository
+    public interface ICustomerRepository : IRepository<Customer>
     {
-        Task<List<Customer>> GetAll();
-        Task<Customer> GetById(int id);
+        Task<List<Customer>> GetAllOrderById();
         Task<Customer> GetByDui(string dui);
         Task<Customer> GetByFullName(string name, string lastname);
-        void Create(Customer cliente);
-        void Update(Customer cliente);
-        void Remove(Customer cliente);
+   
     }
 }

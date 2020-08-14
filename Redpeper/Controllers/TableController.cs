@@ -23,14 +23,12 @@ namespace Redpeper.Controllers
     {
         private readonly ITableRepository _tableRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICustomerRepository _customerRepository;
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
 
-        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork, ICustomerRepository customerRepository, IHubContext<OrderHub, IOrderClient> orderHub)
+        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub)
         {
             _tableRepository = tableRepository;
             _unitOfWork = unitOfWork;
-            _customerRepository = customerRepository;
             _orderHub = orderHub;
         }
 
@@ -86,7 +84,6 @@ namespace Redpeper.Controllers
         {
             try
             {
-
                 _tableRepository.Update(table);
                 await _unitOfWork.Commit();
                 return Ok(table);
@@ -97,6 +94,8 @@ namespace Redpeper.Controllers
                 return BadRequest(e);
             }
         }
+
+
         [HttpPatch("[action]/{id}")]
         public async Task<ActionResult<Table>> ChangeTableState(int id,Customer customer)
         {
@@ -104,7 +103,7 @@ namespace Redpeper.Controllers
             {
                 if (customer.Id== 0)
                 {
-                    _customerRepository.Create(customer);
+                    await _unitOfWork.CustomerRepository.InsertTask(customer);
                     await _unitOfWork.Commit();
                 }
                 var table = await _tableRepository.GetById(id);

@@ -18,12 +18,10 @@ namespace Redpeper.Controllers
     [ApiController]
     public class SupplyController : ControllerBase
     {
-        private readonly ISupplyRepository _supplyRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public SupplyController(ISupplyRepository supplyRepository, IUnitOfWork unitOfWork)
+        public SupplyController( IUnitOfWork unitOfWork)
         {
-            _supplyRepository = supplyRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -31,7 +29,7 @@ namespace Redpeper.Controllers
         public async Task<ActionResult<List<Supply>>> GetAll()
         {
 
-            return await _supplyRepository.GetAll();
+            return await _unitOfWork.SupplyRepository.GetAllOrderById();
         }
 
         // [HttpGet]
@@ -55,7 +53,7 @@ namespace Redpeper.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Supply>> Get(int id)
         {
-            var supply = await _supplyRepository.GetById(id);
+            var supply = await _unitOfWork.SupplyRepository.GetByIdTask(id);
 
             if (supply == null)
             {
@@ -71,7 +69,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _supplyRepository.Create(supply);
+                await _unitOfWork.SupplyRepository.InsertTask(supply);
                 await _unitOfWork.Commit();
                 return supply;
             }
@@ -88,7 +86,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _supplyRepository.Update(supply);
+                _unitOfWork.SupplyRepository.Update(supply);
                 await _unitOfWork.Commit();
                 return Ok(supply);
             }
@@ -103,13 +101,13 @@ namespace Redpeper.Controllers
         [HttpDelete]
         public async Task<ActionResult<Supply>> Remove(int id)
         {
-            var customer = await _supplyRepository.GetById(id);
+            var customer = await _unitOfWork.SupplyRepository.GetByIdTask(id);
             if (customer == null)
             {
                 return NotFound();
             }
 
-            _supplyRepository.Remove(customer);
+            await _unitOfWork.SupplyRepository.DeleteTask(id);
             await _unitOfWork.Commit();
             return customer;
         }

@@ -7,14 +7,9 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories
 {
-    public interface ISupplyRepository
+    public interface ISupplyRepository : IRepository<Supply>
     {
-        Task<List<Supply>> GetAll();
-        Task<PagedList<Supply>> GetPaginated(int pageNumber, int pageSize, string sort);
-        Task<Supply> GetById(int id);
+        Task<List<Supply>> GetAllOrderById();
         Task<Supply> GetByName(string name);
-        void Create(Supply supply);
-        void Update(Supply supply);
-        void Remove(Supply supply);
     }
 }
