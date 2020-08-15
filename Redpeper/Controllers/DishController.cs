@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account.Manage;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Redpeper.Collection;
@@ -19,21 +20,17 @@ namespace Redpeper.Controllers
     [ApiController]
     public class DishController : ControllerBase
     {
-        private readonly IDishRepository _dishRepository;
-        private readonly IDishSuppliesRepository _dishSuppliesRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DishController(IDishRepository dishRepository, IUnitOfWork unitOfWork, IDishSuppliesRepository dishSuppliesRepository)
+        public DishController(IUnitOfWork unitOfWork)
         {
-            _dishRepository = dishRepository;
             _unitOfWork = unitOfWork;
-            _dishSuppliesRepository = dishSuppliesRepository;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Dish>>> GetAll()
         {
-            return await _dishRepository.GetAll();
+            return await _unitOfWork.DishRepository.GetAllIncludingSuppliesTask();
         }
 
         // [HttpGet]
@@ -57,13 +54,13 @@ namespace Redpeper.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<Dish>> GetDishById(int id)
         {
-            return await _dishRepository.GetById(id);
+            return await _unitOfWork.DishRepository.GetByIdIncludeSuppliesTask(id);
         }
 
         [HttpGet("[action]/{name}")]
         public async Task<ActionResult<Dish>> GetByDishName(string name)
         {
-            return await _dishRepository.GetByName(name);
+            return await _unitOfWork.DishRepository.GetByName(name);
         }
 
         [HttpPost("[action]")]
@@ -78,18 +75,18 @@ namespace Redpeper.Controllers
                     DishCategoryId = dishDto.DishCategoryId,
                     Price = dishDto.Price
                 };
-                _dishRepository.Create(dish);
+                await _unitOfWork.DishRepository.InsertTask(dish);
                 await _unitOfWork.Commit();
 
-                var dishId = await _dishRepository.GetMaxId();
+                var dishId = await _unitOfWork.DishRepository.LastRegisterTask();
                 var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
                 {
-                    DishId = dishId,
+                    DishId = dishId.Id,
                     SupplyId = x.SupplyId,
                     Comment = x.Comment,
                     Qty = x.Qty
                 }).ToList();
-                _dishSuppliesRepository.CreateRange(dishSupplies);
+                await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
                 await _unitOfWork.Commit();
 
                 return dish;
@@ -106,7 +103,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _dishSuppliesRepository.Create(dishSupply);
+                await _unitOfWork.DishSuppliesRepository.InsertTask(dishSupply);
                 await _unitOfWork.Commit();
                 return dishSupply;
             }
@@ -134,7 +131,7 @@ namespace Redpeper.Controllers
                     Name = dish.Name,
                     DishCategoryId = dish.DishCategoryId
                 };
-                _dishRepository.Update(dsh);
+                _unitOfWork.DishRepository.Update(dsh);
                 await _unitOfWork.Commit();
 
                 var dishDetails = dish.DishSupplies.Select(x => new DishSupply
@@ -145,17 +142,17 @@ namespace Redpeper.Controllers
                     Comment = x.Comment,
                     SupplyId = x.SupplyId
                 }).ToList();
-                var dishDetailsDb = await _dishSuppliesRepository.GetByDishIdNoTracking(dish.Id);
+                var dishDetailsDb = await _unitOfWork.DishSuppliesRepository.GetByDishIdNoTracking(dish.Id);
 
 
                 if (dishDetailsDb.Count >= dishDetails.Count)
                 {
                     var removeDetail = dishDetailsDb.Where(p => !dishDetails.Any(p2 => p2.Id == p.Id)).ToList();
-                    _dishSuppliesRepository.DeleteRange(removeDetail);
+                    _unitOfWork.DishSuppliesRepository.DeleteRange(removeDetail);
                     await _unitOfWork.Commit();
 
                 }
-                _dishSuppliesRepository.UpdateRange(dishDetails);
+                _unitOfWork.DishSuppliesRepository.UpdateRange(dishDetails);
                 await _unitOfWork.Commit();
             }
             catch (Exception e)
@@ -172,13 +169,13 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var dish = await _dishSuppliesRepository.GetById(dishSupply.Id);
+                var dish = await _unitOfWork.DishSuppliesRepository.GetByIdTask(dishSupply.Id);
 
                 if (dish == null)
                 {
                     return NotFound();
                 }
-                _dishSuppliesRepository.Update(dish);
+                _unitOfWork.DishSuppliesRepository.Update(dish);
                 await _unitOfWork.Commit();
                 return dish;
             }
@@ -194,17 +191,17 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var dish = await _dishRepository.GetById(id);
+                var dish = await _unitOfWork.DishRepository.GetByIdTask(id);
                 if (dish == null)
                 {
                     return NotFound();
                 }
 
-                var dishSupplies = await _dishSuppliesRepository.GetByDishId(dish.Id);
+                var dishSupplies = await _unitOfWork.DishSuppliesRepository.GetByDishId(dish.Id);
 
-                _dishSuppliesRepository.DeleteRange(dishSupplies);
+                _unitOfWork.DishSuppliesRepository.DeleteRange(dishSupplies);
                 await _unitOfWork.Commit();
-                _dishRepository.Delete(dish);
+                await _unitOfWork.DishRepository.DeleteTask(id);
                 await _unitOfWork.Commit();
                 return dish;
             }
@@ -220,12 +217,12 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var dishSupply = await _dishSuppliesRepository.GetById(id);
+                var dishSupply = await _unitOfWork.DishSuppliesRepository.GetByIdTask(id);
                 if (dishSupply == null)
                 {
                     return NotFound();
                 }
-                _dishSuppliesRepository.Delete(dishSupply);
+                await _unitOfWork.DishSuppliesRepository.DeleteTask(id);
                 await _unitOfWork.Commit();
                 return dishSupply;
             }

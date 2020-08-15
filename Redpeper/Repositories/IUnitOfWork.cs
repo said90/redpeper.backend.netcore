@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
 using Redpeper.Repositories.Order.Combos;
+using Redpeper.Repositories.Order.Dishes;
 using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
@@ -20,6 +21,9 @@ namespace Redpeper.Repositories
         ITableRepository TableRepository { get; }
         IComboRepository ComboRepository { get; }
         IComboDetailRepository ComboDetailRepository { get; }
+        IDishSuppliesRepository DishSuppliesRepository { get; }
+        IDishRepository DishRepository { get; }
+        IDishCategoryRepository DishCategoryRepository { get; }
         Task Commit();
     }   
 }

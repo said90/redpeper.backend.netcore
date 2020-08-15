@@ -10,48 +10,22 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Order.Dishes
 {
-    public class DishCategoryRepository : IDishCategoryRepository
+    public class DishCategoryRepository :BaseRepository<DishCategory>, IDishCategoryRepository
     {
-        private readonly DataContext _dataContext;
-
-        public DishCategoryRepository(DataContext dataContext)
+        public DishCategoryRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
         }
 
-        public async Task<List<DishCategory>> GetAll()
+        public async Task<List<DishCategory>> GetAllOrderBy()
         {
-            return await _dataContext.DishCategories.OrderBy(x=> x.Id).ToListAsync();
+            return await _entities.OrderBy(x=> x.Id).ToListAsync();
         }
 
-        public async Task<PagedList<DishCategory>> GetPaginated(int pageNumber, int pageSize, string sort)
-        {
-            return await _dataContext.DishCategories.ToPagedListAsync(pageNumber, pageSize, sort);
-        }
-
-        public async Task<DishCategory> GetById(int id)
-        {
-            return await _dataContext.DishCategories.FirstOrDefaultAsync(x => x.Id == id);
-        }
 
         public async Task<DishCategory> GetByName(string name)
         {
-            return await _dataContext.DishCategories.FirstOrDefaultAsync(x => x.Name == name);
+            return await _entities.FirstOrDefaultAsync(x => x.Name == name);
         }
-
-        public void Create(DishCategory dishCategory)
-        {
-            _dataContext.DishCategories.Add(dishCategory);
-        }
-
-        public void Update(DishCategory dishCategory)
-        {
-            _dataContext.DishCategories.Update(dishCategory);
-        }
-
-        public void Remove(DishCategory dishCategory)
-        {
-            _dataContext.DishCategories.Remove(dishCategory);
-        }
+        
     }
 }

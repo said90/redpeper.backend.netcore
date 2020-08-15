@@ -7,17 +7,10 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Order.Dishes
 {
-    public interface IDishCategoryRepository
+    public interface IDishCategoryRepository : IRepository<DishCategory>
     {
-        Task<List<DishCategory>> GetAll();
-
-        Task<PagedList<DishCategory>> GetPaginated(int pageNumber, int pageSize, string sort);
-
-        Task<DishCategory> GetById(int id);
+        Task<List<DishCategory>> GetAllOrderBy();
         Task<DishCategory> GetByName(string name);
-        void Create(DishCategory dishCategory);
-        void Update(DishCategory dishCategory);
-        void Remove(DishCategory dishCategory);
-
+  
     }
 }

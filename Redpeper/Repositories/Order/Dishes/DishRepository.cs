@@ -10,54 +10,26 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Order.Dishes
 {
-    public class DishRepository : IDishRepository
+    public class DishRepository :BaseRepository<Dish>, IDishRepository
     {
-        private readonly DataContext _dataContext;
-
-        public DishRepository(DataContext dataContext)
+        public DishRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
+        }
+        public async Task<List<Dish>> GetAllIncludingSuppliesTask()
+        {
+            return await  _entities.Include(x=>x.DishSupplies).OrderBy(x => x.Id).ToListAsync();
         }
 
-        public async Task<List<Dish>> GetAll()
-        {
-            return await  _dataContext.Dishes.Include(x=>x.DishSupplies).OrderBy(x => x.Id).ToListAsync();
-        }
 
-        public async Task<PagedList<Dish>> GetPaginated(int pageNumber, int pageSize, string sort)
+        public async Task<Dish> GetByIdIncludeSuppliesTask(int id)
         {
-            return await _dataContext.Dishes.ToPagedListAsync(pageNumber, pageSize, sort);
-
-        }
-
-        public async Task<Dish> GetById(int id)
-        {
-            return await _dataContext.Dishes.Include(x=>x.DishSupplies).FirstOrDefaultAsync(x => x.Id == id);
+            return await _entities.Include(x=>x.DishSupplies).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Dish> GetByName(string name)
         {
-            return await _dataContext.Dishes.Include(x => x.DishSupplies).FirstOrDefaultAsync(x => x.Name == name);
+            return await _entities.Include(x => x.DishSupplies).FirstOrDefaultAsync(x => x.Name == name);
         }
 
-        public async Task<int> GetMaxId()
-        {
-            return await _dataContext.Dishes.Select(x => x.Id).MaxAsync();
-        }
-
-        public void Create(Dish dish)
-        {
-            _dataContext.Add(dish);
-        }
-
-        public void Update(Dish dish)
-        {
-            _dataContext.Update(dish);
-        }
-
-        public void Delete(Dish dish)
-        {
-            _dataContext.Remove(dish);
-        }
-    }
+       }
 }

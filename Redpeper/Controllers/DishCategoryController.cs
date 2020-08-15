@@ -19,19 +19,17 @@ namespace Redpeper.Controllers
     [ApiController]
     public class DishCategoryController : ControllerBase
     {
-        private readonly IDishCategoryRepository _dishCategoryRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DishCategoryController(IDishCategoryRepository dishCategoryRepository, IUnitOfWork unitOfWork)
+        public DishCategoryController( IUnitOfWork unitOfWork)
         {
-            _dishCategoryRepository = dishCategoryRepository;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<DishCategory>>> GetAll()
         {
-            return await _dishCategoryRepository.GetAll();
+            return await _unitOfWork.DishCategoryRepository.GetAllOrderBy();
         }
 
         // [HttpGet]
@@ -55,13 +53,13 @@ namespace Redpeper.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<DishCategory>> GetById(int id)
         {
-            return await _dishCategoryRepository.GetById(id);
+            return await _unitOfWork.DishCategoryRepository.GetByIdTask(id);
         }
 
         [HttpGet("[action]/{name}")]
         public async Task<ActionResult<DishCategory>> GetByName(string name)
         {
-            return await _dishCategoryRepository.GetByName(name);
+            return await _unitOfWork.DishCategoryRepository.GetByName(name);
         }
 
         [HttpPost]
@@ -70,7 +68,7 @@ namespace Redpeper.Controllers
 
             try
             {
-                _dishCategoryRepository.Create(dishCategory);
+                await _unitOfWork.DishCategoryRepository.InsertTask(dishCategory);
                 await _unitOfWork.Commit();
                 return dishCategory;
             }
@@ -87,7 +85,7 @@ namespace Redpeper.Controllers
 
             try
             {
-                _dishCategoryRepository.Update(dishCategory);
+                _unitOfWork.DishCategoryRepository.Update(dishCategory);
                 await _unitOfWork.Commit();
                 return dishCategory;
             }
@@ -101,13 +99,13 @@ namespace Redpeper.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<DishCategory>> Remove(int id)
         {
-            var dishCategory = await _dishCategoryRepository.GetById(id);
+            var dishCategory = await _unitOfWork.DishCategoryRepository.GetByIdTask(id);
             if (dishCategory == null)
             {
                 return NotFound();
             }
 
-            _dishCategoryRepository.Remove(dishCategory);
+            await _unitOfWork.DishCategoryRepository.DeleteTask(id);
             await _unitOfWork.Commit();
             return dishCategory;
         }

@@ -6,6 +6,7 @@ using Redpeper.Data;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
 using Redpeper.Repositories.Order.Combos;
+using Redpeper.Repositories.Order.Dishes;
 using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
@@ -27,6 +28,9 @@ namespace Redpeper.Repositories
             TableRepository = new TableRepository(_dataContext);
             ComboRepository = new ComboRepository(_dataContext);
             ComboDetailRepository = new ComboDetailRepository(_dataContext);
+            DishSuppliesRepository = new DishSuppliesRepository(_dataContext);
+            DishRepository = new DishRepository(_dataContext);
+            DishCategoryRepository = new DishCategoryRepository(_dataContext);
         }
 
         public IEmployeeRepository EmployeeRepository { get; set; }
@@ -38,6 +42,9 @@ namespace Redpeper.Repositories
         public ITableRepository TableRepository { get; set; }
         public IComboRepository ComboRepository { get; }
         public IComboDetailRepository ComboDetailRepository { get; }
+        public IDishSuppliesRepository DishSuppliesRepository { get; }
+        public IDishRepository DishRepository { get; }
+        public IDishCategoryRepository DishCategoryRepository { get; }
 
         public async Task Commit()
         {
