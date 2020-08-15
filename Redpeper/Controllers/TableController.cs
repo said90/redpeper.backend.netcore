@@ -21,13 +21,11 @@ namespace Redpeper.Controllers
     [ApiController]
     public class TableController : ControllerBase
     {
-        private readonly ITableRepository _tableRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
 
-        public TableController(ITableRepository tableRepository, IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub)
+        public TableController(IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub)
         {
-            _tableRepository = tableRepository;
             _unitOfWork = unitOfWork;
             _orderHub = orderHub;
         }
@@ -35,7 +33,7 @@ namespace Redpeper.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Table>>> GetAll()
         {
-            return await _tableRepository.GetAll();
+            return await _unitOfWork.TableRepository.GetAllInludingClients();
         }
 
         // [HttpGet]
@@ -59,7 +57,7 @@ namespace Redpeper.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<Table>> GetById(int id)
         {
-            return await _tableRepository.GetById(id);
+            return await _unitOfWork.TableRepository.GetByIdTask(id);
         }
 
         [HttpPost]
@@ -67,7 +65,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _tableRepository.Create(table);
+                await _unitOfWork.TableRepository.InsertTask(table);
                 await _unitOfWork.Commit();
                 return table;
             }
@@ -84,7 +82,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _tableRepository.Update(table);
+                _unitOfWork.TableRepository.Update(table);
                 await _unitOfWork.Commit();
                 return Ok(table);
             }
@@ -106,10 +104,10 @@ namespace Redpeper.Controllers
                     await _unitOfWork.CustomerRepository.InsertTask(customer);
                     await _unitOfWork.Commit();
                 }
-                var table = await _tableRepository.GetById(id);
+                var table = await _unitOfWork.TableRepository.GetByIdTask(id);
                 table.CustomerId = customer.Id;
                 table.State = 1;
-                _tableRepository.Update(table);
+                _unitOfWork.TableRepository.Update(table);
                 await _unitOfWork.Commit();
                 await _orderHub.Clients.All.BussyTable(table);
                 return Ok(table);
@@ -123,13 +121,13 @@ namespace Redpeper.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Table>> Remove(int id)
         {
-            var table = await _tableRepository.GetById(id);
+            var table = await _unitOfWork.TableRepository.GetByIdTask(id);
             if (table == null)
             {
                 return NotFound();
             }
 
-            _tableRepository.Remove(table);
+            await _unitOfWork.TableRepository.DeleteTask(id);
             await _unitOfWork.Commit();
             return table;
         }

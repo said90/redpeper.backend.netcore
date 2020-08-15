@@ -10,54 +10,28 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Tables
 {
-    public class TableRepository : ITableRepository
+    public class TableRepository : BaseRepository<Table> , ITableRepository
     {
-        private DataContext _dataContext;
-
-        public TableRepository(DataContext dataContext)
+        public TableRepository(DataContext dataContext) : base(dataContext)
         {
-            _dataContext = dataContext;
         }
 
-        public async Task<List<Table>> GetAll()
+        public async Task<List<Table>> GetAllInludingClients()
         {
-            return await _dataContext.Tables.Include(x=>x.Customer).OrderBy(x=>x.Id).ToListAsync();
+            return await _entities.Include(x=>x.Customer).OrderBy(x=>x.Id).ToListAsync();
         }
 
-        public async Task<PagedList<Table>> GetPaginated(int pageNumber, int pageSize, string sort)
-        {
-            return await _dataContext.Tables.ToPagedListAsync(pageNumber, pageSize, sort);
-        }
-
-        public async Task<Table> GetById(int id)
-        {
-            return await _dataContext.Tables.FirstOrDefaultAsync(x => x.Id == id);
-        }
 
         public async Task<List<Table>> GetByIdRange(List<int> ids)
         {
-            return await _dataContext.Tables.Where(x => ids.Contains(x.Id)).ToListAsync();
+            return await _entities.Where(x => ids.Contains(x.Id)).ToListAsync();
 
         }
 
         public async Task<Table> GetByName(string name)
         {
-            return await _dataContext.Tables.FirstOrDefaultAsync(x => x.Name == name);
+            return await _entities.FirstOrDefaultAsync(x => x.Name == name);
         }
 
-        public void Create(Table table)
-        {
-            _dataContext.Tables.Add(table);
-        }
-
-        public void Update(Table table)
-        {
-            _dataContext.Tables.Update(table);
-        }
-
-        public void Remove(Table table)
-        {
-            _dataContext.Tables.Remove(table);
-        }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Redpeper.Data;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
 {
@@ -22,6 +23,7 @@ namespace Redpeper.Repositories
             SupplyRepository = new SupplyRepository(_dataContext);
             SupplyInvoiceDetailRepository = new SupplyInvoiceDetailRepository(_dataContext);
             SupplyInvoiceRepository =  new SupplyInvoiceRepository(_dataContext);
+            TableRepository = new TableRepository(_dataContext);
         }
 
         public IEmployeeRepository EmployeeRepository { get; set; }
@@ -30,6 +32,7 @@ namespace Redpeper.Repositories
         public ISupplyRepository SupplyRepository { get; set; }
         public ISupplyInvoiceDetailRepository SupplyInvoiceDetailRepository { get; set; }
         public ISupplyInvoiceRepository SupplyInvoiceRepository { get; set; }
+        public ITableRepository TableRepository { get; set; }
 
         public async Task Commit()
         {
