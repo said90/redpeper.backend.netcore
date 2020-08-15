@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
@@ -17,6 +18,8 @@ namespace Redpeper.Repositories
         ISupplyInvoiceDetailRepository SupplyInvoiceDetailRepository { get; }
         ISupplyInvoiceRepository SupplyInvoiceRepository { get; }
         ITableRepository TableRepository { get; }
+        IComboRepository ComboRepository { get; }
+        IComboDetailRepository ComboDetailRepository { get; }
         Task Commit();
     }   
 }

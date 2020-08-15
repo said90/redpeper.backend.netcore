@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Redpeper.Data;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
@@ -24,6 +25,8 @@ namespace Redpeper.Repositories
             SupplyInvoiceDetailRepository = new SupplyInvoiceDetailRepository(_dataContext);
             SupplyInvoiceRepository =  new SupplyInvoiceRepository(_dataContext);
             TableRepository = new TableRepository(_dataContext);
+            ComboRepository = new ComboRepository(_dataContext);
+            ComboDetailRepository = new ComboDetailRepository(_dataContext);
         }
 
         public IEmployeeRepository EmployeeRepository { get; set; }
@@ -33,6 +36,8 @@ namespace Redpeper.Repositories
         public ISupplyInvoiceDetailRepository SupplyInvoiceDetailRepository { get; set; }
         public ISupplyInvoiceRepository SupplyInvoiceRepository { get; set; }
         public ITableRepository TableRepository { get; set; }
+        public IComboRepository ComboRepository { get; }
+        public IComboDetailRepository ComboDetailRepository { get; }
 
         public async Task Commit()
         {

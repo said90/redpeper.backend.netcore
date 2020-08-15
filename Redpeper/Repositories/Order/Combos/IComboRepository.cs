@@ -7,16 +7,10 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Order.Combos
 {
-    public interface IComboRepository
+    public interface IComboRepository: IRepository<Combo>
     {
-        Task<List<Combo>> GetAll();
-        Task<PagedList<Combo>> GetPaginated(int pageNumber, int pageSize, string sort);
-
-        Task<Combo> GetById(int id);
+        Task<List<Combo>> GetAllInludeDetails();
         Task<Combo> GetByName(string name);
-        Task<int> GetMaxCombo();
-        void Create(Combo combo);
-        void Update(Combo combo);
-        void Remove(Combo combo);
+
     }
 }

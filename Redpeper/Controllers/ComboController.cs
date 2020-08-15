@@ -20,21 +20,17 @@ namespace Redpeper.Controllers
     [ApiController]
     public class ComboController : ControllerBase
     {
-        private readonly IComboRepository _comboRepository;
-        private readonly IComboDetailRepository _comboDetailRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ComboController(IComboRepository comboRepository, IComboDetailRepository comboDetailRepository, IUnitOfWork unitOfWork)
+        public ComboController( IUnitOfWork unitOfWork)
         {
-            _comboRepository = comboRepository;
-            _comboDetailRepository = comboDetailRepository;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<List<Combo>> GetCombos()
         {
-            return await _comboRepository.GetAll();
+            return await _unitOfWork.ComboRepository.GetAllInludeDetails();
         }
         // [HttpGet]
         // public async Task<PagedList<Combo>> GetPaginated(int page = 1, int size = 10, string sort = "")
@@ -58,13 +54,13 @@ namespace Redpeper.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<Combo> GetComboById(int id)
         {
-            return await _comboRepository.GetById(id);
+            return await _unitOfWork.ComboRepository.GetByIdTask(id);
         }
 
         [HttpGet("[action]/{name}")]
         public async Task<Combo> GetComboByName(string name)
         {
-            return await _comboRepository.GetByName(name);
+            return await _unitOfWork.ComboRepository.GetByName(name);
         }
 
 
@@ -79,19 +75,19 @@ namespace Redpeper.Controllers
                     Description = combo.Description,
                     Total = combo.Total
                 };
-                _comboRepository.Create(cmbo);
+                await _unitOfWork.ComboRepository.InsertTask(cmbo);
                 await _unitOfWork.Commit();
 
-                var maxCombo = await _comboRepository.GetMaxCombo();
+                var maxCombo = await _unitOfWork.ComboRepository.LastRegisterTask();
                 var comboDetails = combo.ComboDetails.Select(x => new ComboDetail
                 {
-                    ComboId = maxCombo,
+                    ComboId = maxCombo.Id,
                     DishId = x.DishId,
                     Price = x.Price,
                     Qty = x.Qty
                 }).ToList();
 
-                _comboDetailRepository.CreateRange(comboDetails);
+                await _unitOfWork.ComboDetailRepository.InsertRangeTask(comboDetails);
                 await _unitOfWork.Commit();
                 return cmbo;
             }
@@ -113,7 +109,7 @@ namespace Redpeper.Controllers
                 //     Price = detail.Price,
                 //     Qty = detail.Qty
                 // };
-                _comboDetailRepository.Create(detail);
+                await _unitOfWork.ComboDetailRepository.InsertTask(detail);
                 await _unitOfWork.Commit();
                 return detail;
             }
@@ -137,10 +133,8 @@ namespace Redpeper.Controllers
                     Total = combo.Total
                 };
 
-                _comboRepository.Update(cmbo);
+                _unitOfWork.ComboRepository.Update(cmbo);
                 await _unitOfWork.Commit();
-
-
 
                 var comboDetails = combo.ComboDetails.Select(x => new ComboDetail
                 {
@@ -151,19 +145,19 @@ namespace Redpeper.Controllers
                     Qty = x.Qty
                 }).ToList();
 
-                var comboDetailsDb = await _comboDetailRepository.GetDetailsByComboNoTracking(combo.Id);
+                var comboDetailsDb = await _unitOfWork.ComboDetailRepository.GetDetailsByComboNoTracking(combo.Id);
 
                 var ids = comboDetails.Select(x => x.Id);
 
                 if (comboDetailsDb.Count >= comboDetails.Count)
                 {
                     var removeDetail = comboDetailsDb.Where(p => !comboDetails.Any(p2 => p2.Id == p.Id)).ToList();
-                    _comboDetailRepository.DeleteRange(removeDetail);
+                    _unitOfWork.ComboDetailRepository.DeleteRange(removeDetail);
                     await _unitOfWork.Commit();
 
                 }
 
-                _comboDetailRepository.UpdateRange(comboDetails);
+                _unitOfWork.ComboDetailRepository.UpdateRange(comboDetails);
                 await _unitOfWork.Commit();
             }
             catch (Exception e)
@@ -178,7 +172,7 @@ namespace Redpeper.Controllers
         {
             try
             {
-                _comboDetailRepository.Update(comboDetail);
+                _unitOfWork.ComboDetailRepository.Update(comboDetail);
                 await _unitOfWork.Commit();
                 return Ok(comboDetail);
 
@@ -194,16 +188,16 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var combo = await _comboRepository.GetById(id);
+                var combo = await _unitOfWork.ComboRepository.GetByIdTask(id);
                 if (combo == null)
                 {
                     return NotFound();
                 }
 
-                var comboDetails = await _comboDetailRepository.GetDetailsByCombo(id);
-                _comboDetailRepository.DeleteRange(comboDetails);
+                var comboDetails = await _unitOfWork.ComboDetailRepository.GetDetailsByCombo(id);
+                _unitOfWork.ComboDetailRepository.DeleteRange(comboDetails);
                 await _unitOfWork.Commit();
-                _comboRepository.Remove(combo);
+                await _unitOfWork.ComboRepository.DeleteTask(id);
                 await _unitOfWork.Commit();
                 return Ok(combo);
 
@@ -219,8 +213,8 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var comboDet = await _comboDetailRepository.GetById(id);
-                _comboDetailRepository.Delete(comboDet);
+                var comboDet = await _unitOfWork.ComboDetailRepository.GetByIdTask(id);
+                await _unitOfWork.ComboDetailRepository.DeleteTask(id);
                 await _unitOfWork.Commit();
                 return Ok(comboDet);
 
