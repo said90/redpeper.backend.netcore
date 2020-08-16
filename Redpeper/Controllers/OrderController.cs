@@ -22,47 +22,38 @@ namespace Redpeper.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly IOrderRepository _orderRepository;
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
-
-        private readonly IOrderDetailRepository _orderDetailRepository;
-        private ITableRepository _tableRepository;
         private readonly IUnitOfWork _unitOfWork;
 
 
-        public OrderController(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository,
-            IUnitOfWork unitOfWork,
-            IHubContext<OrderHub, IOrderClient> orderHub, ITableRepository tableRepository)
+        public OrderController(IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub)
         {
-            _orderRepository = orderRepository;
-            _orderDetailRepository = orderDetailRepository;
             _unitOfWork = unitOfWork;
             _orderHub = orderHub;
-            _tableRepository = tableRepository;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Order>>> GetAll()
         {
-            return await _orderRepository.GetAll();
+            return await _unitOfWork.OrderRepository.GetAllWithIncludes();
         }
 
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<Order>> GetById(int id)
         {
-            return await _orderRepository.GetById(id);
+            return await _unitOfWork.OrderRepository.GetByIdWithDetails(id);
         }
 
         [HttpGet("[action]/{orderNumber}")]
         public async Task<ActionResult<Order>> GetByOrderNumber(string orderNumber)
         {
-            return await _orderRepository.GetByOrderNumber(orderNumber);
+            return await _unitOfWork.OrderRepository.GetByOrderNumber(orderNumber);
         }
 
         [HttpGet("[action]/{status}")]
         public async Task<ActionResult<List<Order>>> GetOrderByStatus(string status)
         {
-            return await _orderRepository.GetOrdersByStatus(status);
+            return await _unitOfWork.OrderRepository.GetOrdersByStatus(status);
         }
 
         [HttpPost("[action]")]
@@ -80,8 +71,8 @@ namespace Redpeper.Controllers
                 };
                 order.Date = DateTime.Now;
                 order.Status = "Abierta";
-                or.OrderNumber = "O-" + (await _orderRepository.GetOrderNumber() + 1);
-                _orderRepository.Create(or);
+                or.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
+                await _unitOfWork.OrderRepository.InsertTask(or);
                 await _unitOfWork.Commit();
 
                 var details = order.OrderDetails.Select(x => new OrderDetail
@@ -98,7 +89,7 @@ namespace Redpeper.Controllers
                 }).ToList();
 
 
-                _orderDetailRepository.CreateRange(details);
+                await _unitOfWork.OrderDetailRepository.InsertRangeTask(details);
 
                 await _unitOfWork.Commit();
 
@@ -120,7 +111,7 @@ namespace Redpeper.Controllers
             if (id !=0 && orderDetailsToUpdate.Count>0)
             {
 
-                var orderAsNoTracking = await _orderRepository.GetByIdNoTracking(id);
+                var orderAsNoTracking = await _unitOfWork.OrderRepository.GetByIdNoTracking(id);
                 if (orderAsNoTracking==null)
                 {
                     return BadRequest(new {errors="This order doesn't exist", id });
@@ -135,7 +126,7 @@ namespace Redpeper.Controllers
                 var orderDetailsToRemove = orderAsNoTracking.OrderDetails.Where(x => !orderDetailsToUpdate.Select(y=>y.Id).Contains(x.Id) && x.Status.Equals("En Cola")).ToList();
                 if (orderDetailsToRemove.Count>=1)
                 {
-                    _orderDetailRepository.RemoveRange(orderDetailsToRemove);
+                    _unitOfWork.OrderDetailRepository.RemoveRange(orderDetailsToRemove);
                 }
 
                 var orderDetailsNotValidState = orderAsNoTracking.OrderDetails.Where(x => orderDetailsToUpdate.Select(y => y.Id).Contains(x.Id) && !x.Status.Equals("En Cola")).ToList();
@@ -144,12 +135,12 @@ namespace Redpeper.Controllers
                     return BadRequest(new {errors = "Only send details with state 'En Cola', the update was not applied ", orderDetailsNotValidState});
                 }
                 orderDetailsToUpdate.ForEach(x=>x.Status= "En Cola");
-                _orderDetailRepository.UpdateRange(orderDetailsToUpdate);
+                _unitOfWork.OrderDetailRepository.UpdateRange(orderDetailsToUpdate);
                 await _unitOfWork.Commit();
 
-                var order = await _orderRepository.GetById(id);
+                var order = await _unitOfWork.OrderRepository.GetByIdWithDetails(id);
                 order.Total = (decimal)orderDetailsToUpdate.Sum(x => x.Total);
-                _orderRepository.Update(order);
+                _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.Commit();
                 await _orderHub.Clients.All.DetailsUpdated(order);
                 return Ok(new{orderDetailsToUpdate, orderDetailsToRemove});
@@ -162,7 +153,7 @@ namespace Redpeper.Controllers
         {
             if (orderDetails.DetailsId != null && orderDetails.DetailsId.Any(x => x != 0))
             {
-                var details = await _orderDetailRepository.GetByRangeId(orderDetails.DetailsId);
+                var details = await _unitOfWork.OrderDetailRepository.GetByRangeId(orderDetails.DetailsId);
                 var detailsWithDifferentState = new List<OrderDetail>();
                 switch (orderDetails.Status)
                 {
@@ -177,7 +168,7 @@ namespace Redpeper.Controllers
 
                         }
 
-                        _orderDetailRepository.UpdateRange(details);
+                        _unitOfWork.OrderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsInProcess(details);
                         return Ok(details);
@@ -190,7 +181,7 @@ namespace Redpeper.Controllers
                             return BadRequest(new { errors = "Only send details with state 'En Proceso'", detailsWithDifferentState });
 
                         }
-                        _orderDetailRepository.UpdateRange(details);
+                        _unitOfWork.OrderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsFinished(details);
                         return Ok(details);
@@ -203,7 +194,7 @@ namespace Redpeper.Controllers
                             return BadRequest(new { errors = "Only send details with state 'Finalizado'", detailsWithDifferentState });
 
                         }
-                        _orderDetailRepository.UpdateRange(details);
+                        _unitOfWork.OrderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsDelivered(details);
                         return Ok(details);
@@ -220,7 +211,7 @@ namespace Redpeper.Controllers
         {
             if (orderToChange.DetailsId != null && orderToChange.DetailsId.Any(x => x != 0))
             {
-                var orders = await _orderRepository.GetByRangeId(orderToChange.DetailsId);
+                var orders = await _unitOfWork.OrderRepository.GetByRangeId(orderToChange.DetailsId);
 
                 var incompletedOrders = new List<Order>();
                 var incompletedDetails = new List<OrderDetail>();
@@ -251,7 +242,7 @@ namespace Redpeper.Controllers
                             return BadRequest(new BadRequestObjectResult(new{errors="Any of the Orders are not in state Abierta", incompletedOrders }));
 
                         }
-                        _orderRepository.UpdateRange(orders);
+                        _unitOfWork.OrderRepository.UpdateRange(orders);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.PreSaleOrders(orders);
                         return Ok(orders);
@@ -276,11 +267,11 @@ namespace Redpeper.Controllers
                             return BadRequest(new BadRequestObjectResult(new {errors="Any of the Orders are not in state Preventa",orders}));
 
                         }
-                        _orderRepository.UpdateRange(orders);
+                        _unitOfWork.OrderRepository.UpdateRange(orders);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.ChargedOrders(orders);
                         var tablesId = orders.Select(x => x.TableId).ToList();
-                        var tables = await _tableRepository.GetByIdRange(tablesId);
+                        var tables = await _unitOfWork.TableRepository.GetByIdRange(tablesId);
                         await _orderHub.Clients.All.FreeTable(tables);
                         return Ok();
 

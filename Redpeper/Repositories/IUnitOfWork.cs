@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Order.Dishes;
+using Redpeper.Repositories.Orders;
 using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
@@ -24,6 +26,8 @@ namespace Redpeper.Repositories
         IDishSuppliesRepository DishSuppliesRepository { get; }
         IDishRepository DishRepository { get; }
         IDishCategoryRepository DishCategoryRepository { get; }
+        IOrderRepository OrderRepository { get; }
+        IOrderDetailRepository OrderDetailRepository { get; }
         Task Commit();
     }   
 }

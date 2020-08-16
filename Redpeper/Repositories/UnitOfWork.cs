@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Redpeper.Data;
 using Redpeper.Model;
 using Redpeper.Repositories.InvoiceSupply;
+using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Order.Dishes;
+using Redpeper.Repositories.Orders;
 using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Repositories
@@ -31,6 +33,8 @@ namespace Redpeper.Repositories
             DishSuppliesRepository = new DishSuppliesRepository(_dataContext);
             DishRepository = new DishRepository(_dataContext);
             DishCategoryRepository = new DishCategoryRepository(_dataContext);
+            OrderRepository = new OrderRepository(_dataContext);
+            OrderDetailRepository = new OrderDetailRepository(_dataContext);
         }
 
         public IEmployeeRepository EmployeeRepository { get; set; }
@@ -40,11 +44,13 @@ namespace Redpeper.Repositories
         public ISupplyInvoiceDetailRepository SupplyInvoiceDetailRepository { get; set; }
         public ISupplyInvoiceRepository SupplyInvoiceRepository { get; set; }
         public ITableRepository TableRepository { get; set; }
-        public IComboRepository ComboRepository { get; }
-        public IComboDetailRepository ComboDetailRepository { get; }
-        public IDishSuppliesRepository DishSuppliesRepository { get; }
-        public IDishRepository DishRepository { get; }
-        public IDishCategoryRepository DishCategoryRepository { get; }
+        public IComboRepository ComboRepository { get; set; }
+        public IComboDetailRepository ComboDetailRepository { get; set; }
+        public IDishSuppliesRepository DishSuppliesRepository { get; set; }
+        public IDishRepository DishRepository { get; set; }
+        public IDishCategoryRepository DishCategoryRepository { get; set; }
+        public IOrderRepository OrderRepository { get; set; }
+        public IOrderDetailRepository OrderDetailRepository { get; set; }
 
         public async Task Commit()
         {
