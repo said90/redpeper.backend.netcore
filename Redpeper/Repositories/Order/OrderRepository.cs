@@ -17,23 +17,23 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<Model.Order>> GetAllWithIncludes()
         {
-            return await _entities.Include(x=> x.Table).Include(x=>x.Customer).Include(x=>x.OrderDetails.OrderBy(y => x.Id)).ToListAsync();
+            return await _entities.Include(x=> x.Table).Include(x=>x.Customer).Include(x=>x.OrderDetails).ToListAsync();
         }
 
         public async Task<Model.Order> GetByIdWithDetails(int id)
         {
-            return await _entities.Include(x=>x.OrderDetails.OrderBy(y=>x.Id)).FirstOrDefaultAsync(x=> x.Id == id);
+            return await _entities.Include(x=>x.OrderDetails).FirstOrDefaultAsync(x=> x.Id == id);
         }
 
         public async Task<Model.Order> GetByIdNoTracking(int id)
         {
-            return await _entities.Include(x => x.OrderDetails.OrderBy(y => x.Id)).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return await _entities.Include(x => x.OrderDetails).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
         }
 
         public async Task<List<Model.Order>> GetByRangeId(List<int> ids)
         {
-            return await _entities.Include(x=>x.OrderDetails.OrderBy(y => x.Id)).Where(x => ids.Contains(x.Id)).ToListAsync();
+            return await _entities.Include(x=>x.OrderDetails).Where(x => ids.Contains(x.Id)).ToListAsync();
         }
 
         public async Task<Model.Order> GetByOrderNumber(string number)
