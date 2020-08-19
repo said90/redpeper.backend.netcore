@@ -139,7 +139,7 @@ namespace Redpeper.Controllers
                 await _unitOfWork.Commit();
 
                 var order = await _unitOfWork.OrderRepository.GetByIdWithDetails(id);
-                order.Total = (decimal)orderDetailsToUpdate.Sum(x => x.Total);
+                order.Total = (decimal)order.OrderDetails.Sum(x => x.Total);
                 _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.Commit();
                 await _orderHub.Clients.All.DetailsUpdated(order);
@@ -206,7 +206,7 @@ namespace Redpeper.Controllers
             return BadRequest(new BadRequestObjectResult("Null Value Detected in details"));
         }
 
-        [HttpPatch("[action]")]
+        [HttpPatch("[action]")] //Espero los Id de las ordenes que cambiaran de estado a preventa o cobrado
         public async Task<IActionResult> ChangeOrderState(ChangeOrderDetailDto orderToChange)
         {
             if (orderToChange.DetailsId != null && orderToChange.DetailsId.Any(x => x != 0))
@@ -218,6 +218,7 @@ namespace Redpeper.Controllers
 
                 switch (orderToChange.Status)
                 {
+                    //Preventa
                     case 2:
                         orders.ForEach(x =>
                         {
@@ -246,6 +247,8 @@ namespace Redpeper.Controllers
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.PreSaleOrders(orders);
                         return Ok(orders);
+
+                    //Cobrado
                     case 3:
                         orders.ForEach(x =>
                         {
