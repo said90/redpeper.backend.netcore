@@ -8,13 +8,13 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Inventory
 {
-    public class CurrentInventorySupplyRepository : ICurrentInventorySupplyRepository
+    public class CurrentInventorySupplyRepository :BaseRepository<CurrentInventorySupply>, ICurrentInventorySupplyRepository
     {
-        private readonly DataContext _dataContext;
 
-        public CurrentInventorySupplyRepository(DataContext dataContext) {
-            _dataContext = dataContext;
+        public CurrentInventorySupplyRepository(DataContext dataContext) : base(dataContext)
+        {
         }
+
 
         public Task<List<CurrentInventorySupply>> GetActualInventoryBySupply(int supplyId)
         {
@@ -24,7 +24,7 @@ namespace Redpeper.Repositories.Inventory
         public Task<List<CurrentInventorySupply>> GetAllActualInventory()
         {
 
-            return _dataContext.CurrentInventorySupplies.GroupBy(x => x.SupplyId).Select(y => new CurrentInventorySupply
+            return _entities.GroupBy(x => x.SupplyId).Select(y => new CurrentInventorySupply
             {
                 Date =y.First().Date,
                 Id = y.First().Id,
@@ -45,34 +45,9 @@ namespace Redpeper.Repositories.Inventory
             throw new NotImplementedException();
         }
 
-        public Task<CurrentInventorySupply> GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
+       
+        
 
-        public void Create(CurrentInventorySupply currentInventorySupply)
-        {
-            _dataContext.CurrentInventorySupplies.Add(currentInventorySupply);
-        }
-
-        public  void CreateRange(List<CurrentInventorySupply> currentInventorySupply)
-        {
-             _dataContext.CurrentInventorySupplies.AddRange(currentInventorySupply);
-        }
-
-        public void Update(CurrentInventorySupply currentInventorySupply)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateRange(List<CurrentInventorySupply> currentInventorySupply)
-        {
-            throw new NotImplementedException();
-        }
-        public void Remove(CurrentInventorySupply currentInventorySupply)
-        {
-            throw new NotImplementedException();
-        }
 
     }
 }

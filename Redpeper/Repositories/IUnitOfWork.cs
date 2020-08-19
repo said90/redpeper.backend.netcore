@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Redpeper.Model;
+using Redpeper.Repositories.Inventory;
 using Redpeper.Repositories.InvoiceSupply;
 using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Order.Combos;
@@ -28,6 +29,8 @@ namespace Redpeper.Repositories
         IDishCategoryRepository DishCategoryRepository { get; }
         IOrderRepository OrderRepository { get; }
         IOrderDetailRepository OrderDetailRepository { get; }
+        ICurrentInventorySupplyRepository CurrentInventorySupplyRepository { get; }
+        IInventorySupplyTransactionRepository InventorySupplyTransactionRepository { get; }
         Task Commit();
     }   
 }

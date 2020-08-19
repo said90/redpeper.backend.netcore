@@ -6,9 +6,8 @@ using Redpeper.Model;
 
 namespace Redpeper.Repositories.Inventory
 {
-    public interface IInventorySupplyTransactionRepository
+    public interface IInventorySupplyTransactionRepository : IRepository<InventorySupplyTransaction>
     {
-        void CreateRange(List<InventorySupplyTransaction> inventorySupplyTransactions);
 
     }
 }

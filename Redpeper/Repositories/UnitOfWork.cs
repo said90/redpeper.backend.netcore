@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Redpeper.Data;
 using Redpeper.Model;
+using Redpeper.Repositories.Inventory;
 using Redpeper.Repositories.InvoiceSupply;
 using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Order.Combos;
@@ -35,6 +36,8 @@ namespace Redpeper.Repositories
             DishCategoryRepository = new DishCategoryRepository(_dataContext);
             OrderRepository = new OrderRepository(_dataContext);
             OrderDetailRepository = new OrderDetailRepository(_dataContext);
+            CurrentInventorySupplyRepository = new CurrentInventorySupplyRepository(_dataContext);
+            InventorySupplyTransactionRepository = new InventorySupplyTransactionRepository(_dataContext);
         }
 
         public IEmployeeRepository EmployeeRepository { get; set; }
@@ -51,6 +54,8 @@ namespace Redpeper.Repositories
         public IDishCategoryRepository DishCategoryRepository { get; set; }
         public IOrderRepository OrderRepository { get; set; }
         public IOrderDetailRepository OrderDetailRepository { get; set; }
+        public ICurrentInventorySupplyRepository CurrentInventorySupplyRepository { get; set; }
+        public IInventorySupplyTransactionRepository InventorySupplyTransactionRepository { get; set; }
 
         public async Task Commit()
         {

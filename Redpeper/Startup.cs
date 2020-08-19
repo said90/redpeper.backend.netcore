@@ -96,7 +96,7 @@ namespace Redpeper
             services.AddScoped<ISupplyInvoiceDetailRepository, SupplyInvoiceDetailRepository>();
             services.AddScoped<ICurrentInventorySupplyRepository, CurrentInventorySupplyRepository>();
             services.AddScoped<ICurrentInventorySupplyRepository, CurrentInventorySupplyRepository>();
-            services.AddScoped<IInventorySupplyTransactionRepository, InventorySupplyRepository>();
+            services.AddScoped<IInventorySupplyTransactionRepository, InventorySupplyTransactionRepository>();
             services.AddScoped<IDishRepository, DishRepository>();
             services.AddScoped<IDishSuppliesRepository, DishSuppliesRepository>();
             services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();

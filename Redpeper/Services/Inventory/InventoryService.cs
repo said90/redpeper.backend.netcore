@@ -12,15 +12,12 @@ namespace Redpeper.Services.Inventory
 {
     public class InventoryService : IInventoryService
     {
-        private readonly ICurrentInventorySupplyRepository _currentInventorySupplyRepository;
-        private IInventorySupplyTransactionRepository _inventorySupplyTransactionRepository;
+
         private readonly IUnitOfWork _unitOfWork;
 
-        public InventoryService(ICurrentInventorySupplyRepository currentInventorySupply, IUnitOfWork unitOfWork, IInventorySupplyTransactionRepository inventorySupplyTransactionRepository)
+        public InventoryService( IUnitOfWork unitOfWork)
         {
-            _currentInventorySupplyRepository = currentInventorySupply;
             _unitOfWork = unitOfWork;
-            _inventorySupplyTransactionRepository = inventorySupplyTransactionRepository;
         }
 
 
@@ -44,8 +41,8 @@ namespace Redpeper.Services.Inventory
                 Date = x.Date,
                 Qty = x.Qty
             }).ToList();
-            _currentInventorySupplyRepository.CreateRange(inventoryDetails);
-            _inventorySupplyTransactionRepository.CreateRange(inventoryTransaction);
+            await _unitOfWork.CurrentInventorySupplyRepository.InsertRangeTask(inventoryDetails);
+            await _unitOfWork.InventorySupplyTransactionRepository.InsertRangeTask(inventoryTransaction);
             await _unitOfWork.Commit();
         }
     }
