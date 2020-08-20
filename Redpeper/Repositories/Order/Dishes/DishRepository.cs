@@ -31,5 +31,10 @@ namespace Redpeper.Repositories.Order.Dishes
             return await _entities.Include(x => x.DishSupplies).FirstOrDefaultAsync(x => x.Name == name);
         }
 
+        public async Task<int> GetMaxId()
+        {
+            return await _entities.Select(x => x.Id).MaxAsync();
+        }
+
        }
 }

@@ -12,5 +12,6 @@ namespace Redpeper.Repositories.Order.Dishes
         Task<List<Dish>> GetAllIncludingSuppliesTask();
         Task<Dish> GetByIdIncludeSuppliesTask(int id);
         Task<Dish> GetByName(string name);
+        Task<int> GetMaxId();
     }
 }

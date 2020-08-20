@@ -78,10 +78,10 @@ namespace Redpeper.Controllers
                 await _unitOfWork.DishRepository.InsertTask(dish);
                 await _unitOfWork.Commit();
 
-                var dishId = await _unitOfWork.DishRepository.LastRegisterTask();
+                var dishId = await _unitOfWork.DishRepository.GetMaxId();
                 var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
                 {
-                    DishId = dishId.Id,
+                    DishId = dishId,
                     SupplyId = x.SupplyId,
                     Comment = x.Comment,
                     Qty = x.Qty
