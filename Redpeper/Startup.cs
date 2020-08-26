@@ -87,6 +87,17 @@ namespace Redpeper
                 });
             });
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy( policy =>
+                {
+                    policy.AllowAnyHeader().AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .WithOrigins("https://red-pepper.netlify.app")
+                        .AllowCredentials();
+                });
+            });
+
             services.AddMvc();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -121,8 +132,10 @@ namespace Redpeper
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors();
             app.UseCors("ReactClient");
             app.UseCors("MobileClient");
+            app.UseCors("NetlifyClient");
 
             app.UseAuthentication();
             app.UseSignalR(routes =>
