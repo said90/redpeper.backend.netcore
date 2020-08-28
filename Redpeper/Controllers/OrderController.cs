@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using Redpeper.Dto;
 using Redpeper.Hubs;
 using Redpeper.Hubs.Clients;
+using Redpeper.Migrations;
 using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Order;
@@ -142,6 +143,7 @@ namespace Redpeper.Controllers
                 order.Total = (decimal)order.OrderDetails.Sum(x => x.Total);
                 _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.Commit();
+                 
                 await _orderHub.Clients.All.DetailsUpdated(order);
                 return Ok(new{orderDetailsToUpdate, orderDetailsToRemove});
             }
@@ -285,6 +287,34 @@ namespace Redpeper.Controllers
             return BadRequest(new BadRequestObjectResult("Null Value Detected in details"));
         }
 
-        
+        [HttpPatch("{orderId}/[action]/{tableId}")]
+        public async Task<IActionResult> ChangeOrderTable(int orderId, int tableId)
+        {
+            var table = await _unitOfWork.TableRepository.GetByIdTask(tableId);
+            if (table == null)
+            {
+                return NotFound(tableId);
+            }
+
+            if (table.State==1) 
+            {
+                return BadRequest(new BadRequestObjectResult(new { errors = "This table is bussy ",table }));
+            }
+
+            var order = await _unitOfWork.OrderRepository.GetByIdWithDetails(orderId);
+            if (order == null)
+            {
+                return NotFound(orderId);
+            }
+
+            order.TableId = tableId;
+            table.State = 1;
+            _unitOfWork.OrderRepository.Update(order);
+            _unitOfWork.TableRepository.Update(table);
+            await _unitOfWork.Commit();
+            await _orderHub.Clients.All.BussyTable(table);
+            return Ok(order);
+
+        }
     }
 }
