@@ -290,15 +290,15 @@ namespace Redpeper.Controllers
         [HttpPatch("{orderId}/[action]/{tableId}")]
         public async Task<IActionResult> ChangeOrderTable(int orderId, int tableId)
         {
-            var table = await _unitOfWork.TableRepository.GetByIdTask(tableId);
-            if (table == null)
+            var newTable= await _unitOfWork.TableRepository.GetByIdTask(tableId);
+            if (newTable == null)
             {
                 return NotFound(tableId);
             }
 
-            if (table.State==1) 
+            if (newTable.State==1) 
             {
-                return BadRequest(new BadRequestObjectResult(new { errors = "This table is bussy ",table }));
+                return BadRequest(new BadRequestObjectResult(new { errors = "This table is bussy ", newTable }));
             }
 
             var order = await _unitOfWork.OrderRepository.GetByIdWithDetails(orderId);
@@ -306,13 +306,22 @@ namespace Redpeper.Controllers
             {
                 return NotFound(orderId);
             }
+            var tables = new List<Table>();
+
+            var oldTable = await _unitOfWork.TableRepository.GetByIdTask(order.TableId);
+            oldTable.CustomerId = null;
+            oldTable.State = 0;
+            _unitOfWork.TableRepository.Update(oldTable);
 
             order.TableId = tableId;
-            table.State = 1;
+            newTable.State = 1;
+            newTable.CustomerId = order.CustomerId;
             _unitOfWork.OrderRepository.Update(order);
-            _unitOfWork.TableRepository.Update(table);
+            _unitOfWork.TableRepository.Update(newTable);
             await _unitOfWork.Commit();
-            await _orderHub.Clients.All.BussyTable(table);
+            tables.Add(oldTable);
+            tables.Add(newTable);
+            await _orderHub.Clients.All.FreeTable(tables);
             return Ok(order);
 
         }
