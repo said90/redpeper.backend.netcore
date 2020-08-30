@@ -277,17 +277,16 @@ namespace Redpeper.Controllers
                         await _orderHub.Clients.All.ChargedOrders(orders);
                         var tablesId = orders.Select(x => x.TableId).ToList();
                         var tables = await _unitOfWork.TableRepository.GetByIdRange(tablesId);
-                        tables= tables.Select(x => new Table
+                        tables.ForEach(x =>
                         {
-                            Id = x.Id,
-                            Chairs = x.Chairs,
-                            CustomerId = null,
-                            State = 0,
-                            Description = x.Description,
-                            CustomerLastName = null,
-                            CustomerName = null,
-                            Name = null
-                        }).ToList();
+
+                            x.CustomerId = null;
+                            x.State = 0;
+                            x.Description = x.Description;
+                            x.CustomerLastName = null;
+                            x.CustomerName = null;
+                            x.Name = null;
+                        });
                         _unitOfWork.TableRepository.UpdateRange(tables);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.FreeTable(tables);
