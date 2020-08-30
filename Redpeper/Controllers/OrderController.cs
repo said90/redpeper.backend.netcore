@@ -285,7 +285,6 @@ namespace Redpeper.Controllers
                             x.Description = x.Description;
                             x.CustomerLastName = null;
                             x.CustomerName = null;
-                            x.Name = null;
                         });
                         _unitOfWork.TableRepository.UpdateRange(tables);
                         await _unitOfWork.Commit();
