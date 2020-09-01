@@ -68,9 +68,9 @@ namespace Redpeper.Repositories
             }
         }
 
-        public async Task<int> CountTask()
+        public async  Task<int> CountTask()
         {
-            return await _entities.CountAsync();
+            return  await _entities.CountAsync();
         }
 
         public async Task<T> LastRegisterTask()

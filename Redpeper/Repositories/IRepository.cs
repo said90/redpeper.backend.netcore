@@ -15,7 +15,7 @@ namespace Redpeper.Repositories
         Task<TEntity> GetByIdTask(int id);
 
         Task<bool> ExistAsync(int id);
-        
+
         Task<int> CountTask();
 
         Task<TEntity> LastRegisterTask();

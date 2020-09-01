@@ -16,5 +16,7 @@ namespace Redpeper.Dto
         public int TableId { get; set; }
         public String Status { get; set; }
         public List<OrderDetail> OrderDetails { get; set; }
+        public string Name { get; set; }
+        public string LastName { get; set; }
     }
 }

@@ -72,7 +72,7 @@ namespace Redpeper.Controllers
                 };
                 order.Date = DateTime.Now;
                 order.Status = "Abierta";
-                or.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
+                or.OrderNumber = "O-" + ( await _unitOfWork.OrderRepository.CountTask() + 1);
                 await _unitOfWork.OrderRepository.InsertTask(or);
                 await _unitOfWork.Commit();
 
@@ -337,6 +337,48 @@ namespace Redpeper.Controllers
 
         }
 
+        [HttpPost("{orderId}/[action]")]
+        public async Task<IActionResult> DivideOrder(int orderId,[FromBody] List<OrderDto> orders)
+        {
+            
+            if (!await _unitOfWork.OrderRepository.ExistAsync(orderId)) return BadRequest(orderId);
+            Customer newCustomer = new Customer();
+            List<Order> newOrders = new List<Order>();
+            orders.ForEach(async x =>
+            {
+                if (x.CustomerId == 0)
+                {
+                     newCustomer = new Customer {Name = x.Name, Lastname = x.LastName};
+                    await _unitOfWork.CustomerRepository.InsertTask(newCustomer);
+                }
 
+                var newOrder = new Order
+                {
+                    CustomerId = x.CustomerId,
+                    TableId = x.TableId,
+                    Date = DateTime.Now,
+                    Total = x.Total,
+                    Status = "Preventa",
+                    Customer = newCustomer
+                };
+                newOrder.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
+
+                await _unitOfWork.OrderRepository.InsertTask(newOrder);
+
+                x.OrderDetails.ForEach(y => { y.Order = newOrder; });
+                _unitOfWork.OrderDetailRepository.UpdateRange(x.OrderDetails);
+                newOrders.Add(newOrder);
+            });
+
+
+            await _unitOfWork.Commit();
+            var originalOrder = await _unitOfWork.OrderRepository.GetByIdNoTracking(orderId);
+
+            originalOrder.Total = (decimal)originalOrder.OrderDetails.Sum(x => x.Total);
+            _unitOfWork.OrderRepository.Update(originalOrder);
+            await _unitOfWork.Commit();
+
+            return Ok(new {originalOrder, newOrders });
+        }
     }
 }

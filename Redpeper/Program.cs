@@ -17,7 +17,7 @@ namespace Redpeper
         public static void Main(string[] args)
         {
             IWebHost host = CreateWebHostBuilder(args).Build();
-            RunSeeding(host);
+            //RunSeeding(host);
             host.Run();
         }
         private static void RunSeeding(IWebHost host)
