@@ -28,7 +28,17 @@ namespace Redpeper.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Employee>>> GetEmpleados()
         {
-            return await _unitOfWork.EmployeeRepository.GetAllOrderById();
+            try
+            {
+                var employees = await _unitOfWork.EmployeeRepository.GetAllOrderById();
+                return Ok(employees);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         [HttpGet("{id}")]
@@ -50,15 +60,21 @@ namespace Redpeper.Controllers
             try
             {
                 await _unitOfWork.EmployeeRepository.InsertTask(employee);
+                var user = await _unitOfWork.UserRepository.GetByIdStringTask(employee.UserId);
+                if (!string.IsNullOrEmpty(user.Id))
+                {
+                    user.Employee = employee;
+                    _unitOfWork.UserRepository.Update(user);
+                }
                 await _unitOfWork.Commit();
                 return employee;
             }
             catch (Exception e)
             {
-                
-                return BadRequest(e);
+
+                return BadRequest(new { errors = "This User is Already assign to another Employee",employee  });
             }
-            
+
         }
 
         [HttpPut]

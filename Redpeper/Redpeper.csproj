@@ -8,6 +8,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200624230604_AddingStatusFieldoOnTables.cs" />
     <Compile Remove="Migrations\20200624230604_AddingStatusFieldoOnTables.Designer.cs" />
+    <Compile Remove="Migrations\20200906232046_AddingEmployeeIdToOrderAndUserIdToEmployee.cs" />
+    <Compile Remove="Migrations\20200906232046_AddingEmployeeIdToOrderAndUserIdToEmployee.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,5 +18,6 @@ namespace Redpeper.Model
         public Decimal Total { get; set; }
         public string Status { get; set; }
         public virtual List<OrderDetail> OrderDetails { get; set; }
+        public int EmployeeId { get; set; }
     }
 }

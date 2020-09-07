@@ -31,6 +31,7 @@ namespace Redpeper.Repositories
         IOrderDetailRepository OrderDetailRepository { get; }
         ICurrentInventorySupplyRepository CurrentInventorySupplyRepository { get; }
         IInventorySupplyTransactionRepository InventorySupplyTransactionRepository { get; }
+        IUserRepository UserRepository { get; }
         Task Commit();
     }   
 }

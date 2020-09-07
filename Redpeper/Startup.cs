@@ -117,7 +117,7 @@ namespace Redpeper
             services.AddScoped<IInventoryService, InventoryService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
-
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSignalR();

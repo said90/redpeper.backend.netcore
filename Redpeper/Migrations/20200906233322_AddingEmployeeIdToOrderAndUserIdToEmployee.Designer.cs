@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Redpeper.Data;
@@ -9,9 +10,10 @@ using Redpeper.Data;
 namespace Redpeper.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200906233322_AddingEmployeeIdToOrderAndUserIdToEmployee")]
+    partial class AddingEmployeeIdToOrderAndUserIdToEmployee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,7 +291,8 @@ namespace Redpeper.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Employees");
                 });
@@ -541,8 +544,6 @@ namespace Redpeper.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -630,8 +631,8 @@ namespace Redpeper.Migrations
             modelBuilder.Entity("Redpeper.Model.Employee", b =>
                 {
                     b.HasOne("Redpeper.Model.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Employee")
+                        .HasForeignKey("Redpeper.Model.Employee", "UserId");
                 });
 
             modelBuilder.Entity("Redpeper.Model.InventorySupplyTransaction", b =>
@@ -692,13 +693,6 @@ namespace Redpeper.Migrations
                     b.HasOne("Redpeper.Model.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId");
-                });
-
-            modelBuilder.Entity("Redpeper.Model.User", b =>
-                {
-                    b.HasOne("Redpeper.Model.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId");
                 });
 #pragma warning restore 612, 618
         }

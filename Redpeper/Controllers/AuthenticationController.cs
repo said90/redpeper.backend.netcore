@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
@@ -14,6 +15,7 @@ using Redpeper.Helper;
 
 namespace Redpeper.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
 
@@ -44,8 +46,9 @@ namespace Redpeper.Controllers
                         var claims = new[]
                         {
                             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                             
-                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                            new Claim("UserId", user.Id ?? string.Empty),
+                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                            new Claim("EmployeeId", user.EmployeeId.ToString() ?? string.Empty)
                         };
 
                         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));

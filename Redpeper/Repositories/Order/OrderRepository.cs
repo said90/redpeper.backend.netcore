@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Redpeper.Data;
+using Redpeper.Model;
 using Redpeper.Repositories.Orders;
 
 namespace Redpeper.Repositories.Order
@@ -18,6 +19,11 @@ namespace Redpeper.Repositories.Order
         public async Task<List<Model.Order>> GetAllWithIncludes()
         {
             return await _entities.Include(x=> x.Table).Include(x=>x.Customer).Include(x=>x.OrderDetails).ToListAsync();
+        }
+
+        public async Task<List<Model.Order>> GetOrderByEmployee(int employeeId)
+        {
+            return await _entities.Include(x => x.Table).Include(x => x.Customer).Include(x => x.OrderDetails).Where(x=>x.EmployeeId == employeeId).ToListAsync();
         }
 
         public async Task<Model.Order> GetByIdWithDetails(int id)

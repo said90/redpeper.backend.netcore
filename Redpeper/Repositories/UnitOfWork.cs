@@ -38,6 +38,7 @@ namespace Redpeper.Repositories
             OrderDetailRepository = new OrderDetailRepository(_dataContext);
             CurrentInventorySupplyRepository = new CurrentInventorySupplyRepository(_dataContext);
             InventorySupplyTransactionRepository = new InventorySupplyTransactionRepository(_dataContext);
+            UserRepository= new UserRepository(dataContext);
         }
 
         public IEmployeeRepository EmployeeRepository { get; set; }
@@ -56,6 +57,7 @@ namespace Redpeper.Repositories
         public IOrderDetailRepository OrderDetailRepository { get; set; }
         public ICurrentInventorySupplyRepository CurrentInventorySupplyRepository { get; set; }
         public IInventorySupplyTransactionRepository InventorySupplyTransactionRepository { get; set; }
+        public IUserRepository UserRepository { get; set; }
 
         public async Task Commit()
         {

@@ -16,7 +16,7 @@ namespace Redpeper.Repositories
 
         public async Task<List<Employee>> GetAllOrderById()
         {
-            return await _entities.OrderBy(x => x.Id).ToListAsync();
+            return await _entities.OrderBy(x => x.Id).Include(x=>x .User).ToListAsync();
         }
 
         public async Task<Employee> GetByDui(string dui)

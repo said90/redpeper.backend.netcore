@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Redpeper.Dto;
+using Redpeper.Extensions;
 using Redpeper.Hubs;
 using Redpeper.Hubs.Clients;
 using Redpeper.Migrations;
@@ -36,7 +37,7 @@ namespace Redpeper.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Order>>> GetAll()
         {
-            return await _unitOfWork.OrderRepository.GetAllWithIncludes();
+            return await _unitOfWork.OrderRepository.GetOrderByEmployee(int.Parse(User.Identity.GetEmployeeId()));
         }
 
         [HttpGet("[action]/{id}")]
@@ -62,13 +63,15 @@ namespace Redpeper.Controllers
         {
             try
             {
+
                 var or = new Order
                 {
                     CustomerId = order.CustomerId,
                     TableId = order.TableId,
                     Date = DateTime.Now,
                     Total = order.Total,
-                    Status = "Abierta"
+                    Status = "Abierta",
+                    EmployeeId = int.Parse(User.Identity.GetEmployeeId())
                 };
                 order.Date = DateTime.Now;
                 order.Status = "Abierta";
@@ -161,7 +164,6 @@ namespace Redpeper.Controllers
                 {
                     case 2:
                         //todo aqui debo de hacer el ajuste de inventario,disminuir el inventario
-
                         details.ForEach(x => { if (x.Status.Equals("En Cola")) { x.Status = "En Proceso"; }else { detailsWithDifferentState.Add(x); } });
                        
                         if (detailsWithDifferentState.Count >=1)
@@ -171,8 +173,44 @@ namespace Redpeper.Controllers
                         }
 
                         _unitOfWork.OrderDetailRepository.UpdateRange(details);
-                        await _unitOfWork.Commit();
+                        var inventoryTransactions = new List<InventorySupplyTransaction>();
+                        details.ForEach(x =>
+                        {
+                            if (x.ComboId!=null)
+                            {
+                                x.Combo.ComboDetails.ForEach(y =>
+                                {
+                                   y.Dish.DishSupplies.ForEach(z =>
+                                   {
+                                       var inventorySupplyTransaction = new InventorySupplyTransaction
+                                       {
+                                           Date = DateTime.Now,
+                                           ExpirationDate = DateTime.Now,
+                                           Qty = -z.Qty,
+                                           SupplyId = z.SupplyId
+                                       };
+                                       inventoryTransactions.Add(inventorySupplyTransaction);
+                                   });
+                                });
+                            }
+                            else
+                            {
+                                x.Dish.DishSupplies.ForEach(y =>
+                                {
+                                    var inventorySupplyTransaction = new InventorySupplyTransaction
+                                    {
+                                        Date = DateTime.Now,
+                                        ExpirationDate = DateTime.Now,
+                                        Qty =-y.Qty,
+                                        SupplyId = y.SupplyId
+                                    };
+                                    inventoryTransactions.Add(inventorySupplyTransaction);
+                                });
+                            }
+                        });
                         await _orderHub.Clients.All.DetailsInProcess(details);
+                        await _unitOfWork.InventorySupplyTransactionRepository.InsertRangeTask(inventoryTransactions);
+                        await _unitOfWork.Commit();
                         return Ok(details);
 
                     case 3:
@@ -342,8 +380,11 @@ namespace Redpeper.Controllers
         {
             
             if (!await _unitOfWork.OrderRepository.ExistAsync(orderId)) return BadRequest(orderId);
+
+
             Customer newCustomer = new Customer();
             List<Order> newOrders = new List<Order>();
+
             orders.ForEach(async x =>
             {
                 if (x.CustomerId == 0)
@@ -359,7 +400,7 @@ namespace Redpeper.Controllers
                     Date = DateTime.Now,
                     Total = x.Total,
                     Status = "Preventa",
-                    Customer = newCustomer
+                    Customer = x.CustomerId ==0? newCustomer:null
                 };
                 newOrder.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
 
