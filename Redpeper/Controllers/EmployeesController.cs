@@ -61,7 +61,7 @@ namespace Redpeper.Controllers
             {
                 await _unitOfWork.EmployeeRepository.InsertTask(employee);
                 var user = await _unitOfWork.UserRepository.GetByIdStringTask(employee.UserId);
-                if (!string.IsNullOrEmpty(user.Id))
+                if (user!=null)
                 {
                     user.Employee = employee;
                     _unitOfWork.UserRepository.Update(user);
