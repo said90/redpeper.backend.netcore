@@ -19,7 +19,7 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<OrderDetail>> GetByRangeId(List<int> ids)
         {
-            return await _entities.Where(x => ids.Contains(x.Id)).Include(x=> x.Combo).Include(x=> x.Dish).ThenInclude(x=> x.DishSupplies).ToListAsync();
+            return await _entities.Where(x => ids.Contains(x.Id)).Include(x=> x.Combo).ThenInclude(x=>x.ComboDetails).ThenInclude(x=>x.Dish).ThenInclude(x=>x.DishSupplies).Include(x=> x.Dish).ThenInclude(x=> x.DishSupplies).ToListAsync();
         }
         
         public async Task<List<OrderDetail>> GetByOrderId(int id)
