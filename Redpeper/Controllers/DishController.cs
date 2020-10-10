@@ -79,7 +79,7 @@ namespace Redpeper.Controllers
                 await _unitOfWork.DishRepository.InsertTask(dish);
                 await _unitOfWork.Commit();
 
-                if (dishDto.Image.Files[0].Length > 0)
+                if (dishDto.Image.Files.Count > 0)
                 {
                     var dishImage = new DishImage
                     {
@@ -154,6 +154,13 @@ namespace Redpeper.Controllers
 
                 if (dish.Image.Files.Count >0)
                 {
+                    var imageToRemove = await _unitOfWork.DishImageRepository.GetByDishId(dish.Id);
+                    if (imageToRemove !=null)
+                    {
+                       await  _unitOfWork.DishImageRepository.DeleteTask(imageToRemove.Id);
+                    }
+
+
                     var dishImage = new DishImage
                     {
                         DishId = dish.Id
@@ -165,8 +172,8 @@ namespace Redpeper.Controllers
                         dishImage.Image = ms.ToArray();
                     }
 
-                     _unitOfWork.DishImageRepository.Update(dishImage);
-                     await _unitOfWork.Commit();
+                    await _unitOfWork.DishImageRepository.InsertTask(dishImage); 
+                    await _unitOfWork.Commit();
                 }
                 
                 var dishDetails = dish.DishSupplies.Select(x => new DishSupply
