@@ -13,6 +13,7 @@ using Redpeper.Dto;
 using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Order.Dishes;
+using Newtonsoft.Json.Linq;
 
 namespace Redpeper.Controllers
 {
@@ -64,57 +65,57 @@ namespace Redpeper.Controllers
             return await _unitOfWork.DishRepository.GetByName(name);
         }
 
-        [HttpPost("[action]")]
-        public async Task<ActionResult<Dish>> CreateDish([FromForm]DishDto dishDto )
-        {
-            try
-            {
-                var dish = new Dish
-                {
-                    Name = dishDto.Name,
-                    Description = dishDto.Description,
-                    DishCategoryId = dishDto.DishCategoryId,
-                    Price = dishDto.Price
-                };
-                await _unitOfWork.DishRepository.InsertTask(dish);
-                await _unitOfWork.Commit();
+        // [HttpPost("[action]")]
+        // public async Task<ActionResult<Dish>> CreateDish([FromForm] DishDto dishDto)
+        // {
+        //     try
+        //     {
+        //         var dish = new Dish
+        //         {
+        //             Name = dishDto.Name,
+        //             Description = dishDto.Description,
+        //             DishCategoryId = dishDto.DishCategoryId,
+        //             Price = dishDto.Price
+        //         };
+        //         await _unitOfWork.DishRepository.InsertTask(dish);
+        //         await _unitOfWork.Commit();
 
-                if (dishDto.Image.Files.Count > 0)
-                {
-                    var dishImage = new DishImage
-                    {
-                        DishId = dish.Id
-                    };
+        //         if (dishDto.Image.Length > 0)
+        //         {
+        //             var dishImage = new DishImage
+        //             {
+        //                 DishId = dish.Id
+        //             };
 
-                    using (var ms = new MemoryStream())
-                    {
-                        dishDto.Image.Files[0].CopyTo(ms);
-                        dishImage.Image = ms.ToArray();
-                    }
+        //             using (var ms = new MemoryStream())
+        //             {
+        //                 dishDto.Image.Files[0].CopyTo(ms);
+        //                 dishImage.Image = ms.ToArray();
+        //             }
 
-                    _unitOfWork.DishImageRepository.Update(dishImage);
-                    await _unitOfWork.Commit();
-                }
+        //             _unitOfWork.DishImageRepository.Update(dishImage);
+        //             await _unitOfWork.Commit();
+        //         }
 
-                var dishId = await _unitOfWork.DishRepository.GetMaxId();
-                var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
-                {
-                    DishId = dishId,
-                    SupplyId = x.SupplyId,
-                    Comment = x.Comment,
-                    Qty = x.Qty
-                }).ToList();
-                await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
-                await _unitOfWork.Commit();
+        //         var dishId = await _unitOfWork.DishRepository.GetMaxId();
+        //         var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
+        //         {
+        //             DishId = dishId,
+        //             SupplyId = x.SupplyId,
+        //             Comment = x.Comment,
+        //             Qty = x.Qty
+        //         }).ToList();
+        //         await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
+        //         await _unitOfWork.Commit();
 
-                return dish;
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
+        //         return dish;
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return BadRequest(e);
 
-            }
-        }
+        //     }
+        // }
 
         [HttpPost("[action]")]
         public async Task<ActionResult<DishSupply>> CreateDishSupply(DishSupply dishSupply)
@@ -133,7 +134,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<ActionResult<Dish>> UpdateDish([FromForm]DishDto dish)
+        public async Task<ActionResult<Dish>> UpdateDish([FromForm] DishDto dish)
         {
             try
             {
@@ -152,12 +153,12 @@ namespace Redpeper.Controllers
                 _unitOfWork.DishRepository.Update(dsh);
                 await _unitOfWork.Commit();
 
-                if (dish.Image.Files.Count >0)
+                if (dish.Image != null)
                 {
                     var imageToRemove = await _unitOfWork.DishImageRepository.GetByDishId(dish.Id);
-                    if (imageToRemove !=null)
+                    if (imageToRemove != null)
                     {
-                       await  _unitOfWork.DishImageRepository.DeleteTask(imageToRemove.Id);
+                        await _unitOfWork.DishImageRepository.DeleteTask(imageToRemove.Id);
                     }
 
 
@@ -168,15 +169,18 @@ namespace Redpeper.Controllers
 
                     using (var ms = new MemoryStream())
                     {
-                        dish.Image.Files[0].CopyTo(ms);
+                        dish.Image.CopyTo(ms);
                         dishImage.Image = ms.ToArray();
                     }
 
-                    await _unitOfWork.DishImageRepository.InsertTask(dishImage); 
+                    await _unitOfWork.DishImageRepository.InsertTask(dishImage);
                     await _unitOfWork.Commit();
                 }
+
                 
-                var dishDetails = dish.DishSupplies.Select(x => new DishSupply
+                var dishDetailsJson = JsonConvert.DeserializeObject<List<DishSupply>>(dish.DishSupplies); ;
+
+                var dishDetails = dishDetailsJson.Select(x => new DishSupply
                 {
                     Id = x.Id,
                     DishId = x.DishId,
@@ -184,8 +188,8 @@ namespace Redpeper.Controllers
                     Comment = x.Comment,
                     SupplyId = x.SupplyId
                 }).ToList();
-                var dishDetailsDb = await _unitOfWork.DishSuppliesRepository.GetByDishIdNoTracking(dish.Id);
 
+                var dishDetailsDb = await _unitOfWork.DishSuppliesRepository.GetByDishIdNoTracking(dish.Id);
 
                 if (dishDetailsDb.Count >= dishDetails.Count)
                 {
@@ -283,7 +287,7 @@ namespace Redpeper.Controllers
             if (dishImage == null) return NotFound();
 
             return Ok(dishImage);
-            
+
         }
     }
 }
