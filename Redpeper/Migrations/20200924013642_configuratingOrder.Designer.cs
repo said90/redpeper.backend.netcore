@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Redpeper.Data;
@@ -9,9 +10,10 @@ using Redpeper.Data;
 namespace Redpeper.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200924013642_configuratingOrder")]
+    partial class configuratingOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,20 +166,6 @@ namespace Redpeper.Migrations
                     b.ToTable("ComboDetails");
                 });
 
-            modelBuilder.Entity("Redpeper.Model.ComboImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("ComboId");
-
-                    b.Property<byte[]>("Image");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ComboImages");
-                });
-
             modelBuilder.Entity("Redpeper.Model.CurrentInventorySupply", b =>
                 {
                     b.Property<int>("Id")
@@ -254,20 +242,6 @@ namespace Redpeper.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DishCategories");
-                });
-
-            modelBuilder.Entity("Redpeper.Model.DishImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("DishId");
-
-                    b.Property<byte[]>("Image");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DishImages");
                 });
 
             modelBuilder.Entity("Redpeper.Model.DishSupply", b =>
@@ -367,7 +341,7 @@ namespace Redpeper.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("Redpeper.Model.OrderDetail", b =>
@@ -693,7 +667,7 @@ namespace Redpeper.Migrations
                         .WithMany()
                         .HasForeignKey("DishId");
 
-                    b.HasOne("Redpeper.Model.Order")
+                    b.HasOne("Redpeper.Model.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);

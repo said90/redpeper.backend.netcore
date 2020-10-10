@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 
 namespace Redpeper.Model
@@ -12,6 +13,7 @@ namespace Redpeper.Model
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
+        public virtual DishImage DishImage { get; set; }
         public virtual List<DishSupply> DishSupplies { get; set; }
     }
 }

@@ -11,6 +11,7 @@ namespace Redpeper.Model
         public string Name { get; set; }
         public string Description { get; set; }
         public double Total { get; set; }
+        public virtual ComboImage ComboImage { get; set; }
         public virtual List<ComboDetail> ComboDetails { get; set; }
     }
 }

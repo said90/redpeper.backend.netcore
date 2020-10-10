@@ -10,6 +10,8 @@
     <Compile Remove="Migrations\20200624230604_AddingStatusFieldoOnTables.Designer.cs" />
     <Compile Remove="Migrations\20200906232046_AddingEmployeeIdToOrderAndUserIdToEmployee.cs" />
     <Compile Remove="Migrations\20200906232046_AddingEmployeeIdToOrderAndUserIdToEmployee.Designer.cs" />
+    <Compile Remove="Migrations\20201010002253_AddingTablesForImage.cs" />
+    <Compile Remove="Migrations\20201010002253_AddingTablesForImage.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
