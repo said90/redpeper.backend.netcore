@@ -65,7 +65,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<Dish>> CreateDish(DishDto dishDto )
+        public async Task<ActionResult<Dish>> CreateDish([FromForm]DishDto dishDto )
         {
             try
             {
@@ -78,6 +78,23 @@ namespace Redpeper.Controllers
                 };
                 await _unitOfWork.DishRepository.InsertTask(dish);
                 await _unitOfWork.Commit();
+
+                if (dishDto.Image.Files[0].Length > 0)
+                {
+                    var dishImage = new DishImage
+                    {
+                        DishId = dish.Id
+                    };
+
+                    using (var ms = new MemoryStream())
+                    {
+                        dishDto.Image.Files[0].CopyTo(ms);
+                        dishImage.Image = ms.ToArray();
+                    }
+
+                    _unitOfWork.DishImageRepository.Update(dishImage);
+                    await _unitOfWork.Commit();
+                }
 
                 var dishId = await _unitOfWork.DishRepository.GetMaxId();
                 var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
@@ -135,7 +152,7 @@ namespace Redpeper.Controllers
                 _unitOfWork.DishRepository.Update(dsh);
                 await _unitOfWork.Commit();
 
-                if (dish.Image.Files[0].Length > 0)
+                if (dish.Image.Files.Count >0)
                 {
                     var dishImage = new DishImage
                     {
@@ -152,8 +169,6 @@ namespace Redpeper.Controllers
                      await _unitOfWork.Commit();
                 }
                 
-                
-
                 var dishDetails = dish.DishSupplies.Select(x => new DishSupply
                 {
                     Id = x.Id,
