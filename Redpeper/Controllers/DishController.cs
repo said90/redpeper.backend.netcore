@@ -65,57 +65,65 @@ namespace Redpeper.Controllers
             return await _unitOfWork.DishRepository.GetByName(name);
         }
 
-        // [HttpPost("[action]")]
-        // public async Task<ActionResult<Dish>> CreateDish([FromForm] DishDto dishDto)
-        // {
-        //     try
-        //     {
-        //         var dish = new Dish
-        //         {
-        //             Name = dishDto.Name,
-        //             Description = dishDto.Description,
-        //             DishCategoryId = dishDto.DishCategoryId,
-        //             Price = dishDto.Price
-        //         };
-        //         await _unitOfWork.DishRepository.InsertTask(dish);
-        //         await _unitOfWork.Commit();
+        [HttpPost("[action]")]
+        public async Task<ActionResult<Dish>> CreateDish([FromForm] DishDto dishDto)
+        {
+            try
+            {
+                var dish = new Dish
+                {
+                    Name = dishDto.Name,
+                    Description = dishDto.Description,
+                    DishCategoryId = dishDto.DishCategoryId,
+                    Price = dishDto.Price
+                };
+                await _unitOfWork.DishRepository.InsertTask(dish);
+                await _unitOfWork.Commit();
 
-        //         if (dishDto.Image.Length > 0)
-        //         {
-        //             var dishImage = new DishImage
-        //             {
-        //                 DishId = dish.Id
-        //             };
+                if (dishDto.Image != null)
+                {
+                    var imageToRemove = await _unitOfWork.DishImageRepository.GetByDishId(dish.Id);
+                    if (imageToRemove != null)
+                    {
+                        await _unitOfWork.DishImageRepository.DeleteTask(imageToRemove.Id);
+                    }
 
-        //             using (var ms = new MemoryStream())
-        //             {
-        //                 dishDto.Image.Files[0].CopyTo(ms);
-        //                 dishImage.Image = ms.ToArray();
-        //             }
 
-        //             _unitOfWork.DishImageRepository.Update(dishImage);
-        //             await _unitOfWork.Commit();
-        //         }
+                    var dishImage = new DishImage
+                    {
+                        DishId = dish.Id
+                    };
 
-        //         var dishId = await _unitOfWork.DishRepository.GetMaxId();
-        //         var dishSupplies = dishDto.DishSupplies.Select(x => new DishSupply
-        //         {
-        //             DishId = dishId,
-        //             SupplyId = x.SupplyId,
-        //             Comment = x.Comment,
-        //             Qty = x.Qty
-        //         }).ToList();
-        //         await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
-        //         await _unitOfWork.Commit();
+                    using (var ms = new MemoryStream())
+                    {
+                        dishDto.Image.CopyTo(ms);
+                        dishImage.Image = ms.ToArray();
+                    }
 
-        //         return dish;
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return BadRequest(e);
+                    await _unitOfWork.DishImageRepository.InsertTask(dishImage);
+                    await _unitOfWork.Commit();
+                }
 
-        //     }
-        // }
+                var dishId = await _unitOfWork.DishRepository.GetMaxId();
+                var dishDetailsJson = JsonConvert.DeserializeObject<List<DishSupply>>(dishDto.DishSupplies); ;
+                var dishSupplies = dishDetailsJson.Select(x => new DishSupply
+                {
+                    DishId = dishId,
+                    SupplyId = x.SupplyId,
+                    Comment = x.Comment,
+                    Qty = x.Qty
+                }).ToList();
+                await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
+                await _unitOfWork.Commit();
+
+                return dish;
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+
+            }
+        }
 
         [HttpPost("[action]")]
         public async Task<ActionResult<DishSupply>> CreateDishSupply(DishSupply dishSupply)
@@ -247,9 +255,15 @@ namespace Redpeper.Controllers
 
                 _unitOfWork.DishSuppliesRepository.DeleteRange(dishSupplies);
                 await _unitOfWork.Commit();
+                if (dish.DishImage !=null)
+                {
+                    var image = await _unitOfWork.DishImageRepository.GetByDishId(dish.Id);
+                   await _unitOfWork.DishImageRepository.DeleteTask(image.Id);
+                }
+              
                 await _unitOfWork.DishRepository.DeleteTask(id);
                 await _unitOfWork.Commit();
-                return dish;
+                return dish; 
             }
             catch (Exception e)
             {
