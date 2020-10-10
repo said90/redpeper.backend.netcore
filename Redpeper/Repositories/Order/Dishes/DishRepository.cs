@@ -17,9 +17,8 @@ namespace Redpeper.Repositories.Order.Dishes
         }
         public async Task<List<Dish>> GetAllIncludingSuppliesTask()
         {
-            return await  _entities.Include(x=>x.DishSupplies).OrderBy(x => x.Id).ToListAsync();
+            return await  _entities.Include(x=>x.DishSupplies).Include(x=> x.DishImage).OrderBy(x => x.Id).ToListAsync();
         }
-
 
         public async Task<Dish> GetByIdIncludeSuppliesTask(int id)
         {

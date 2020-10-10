@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -64,7 +65,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<Dish>> CreateDish(DishDto dishDto)
+        public async Task<ActionResult<Dish>> CreateDish(DishDto dishDto )
         {
             try
             {
@@ -115,7 +116,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<ActionResult<Dish>> UpdateDish(DishDto dish)
+        public async Task<ActionResult<Dish>> UpdateDish([FromForm]DishDto dish)
         {
             try
             {
@@ -133,6 +134,25 @@ namespace Redpeper.Controllers
                 };
                 _unitOfWork.DishRepository.Update(dsh);
                 await _unitOfWork.Commit();
+
+                if (dish.Image.Files[0].Length > 0)
+                {
+                    var dishImage = new DishImage
+                    {
+                        DishId = dish.Id
+                    };
+
+                    using (var ms = new MemoryStream())
+                    {
+                        dish.Image.Files[0].CopyTo(ms);
+                        dishImage.Image = ms.ToArray();
+                    }
+
+                     _unitOfWork.DishImageRepository.Update(dishImage);
+                     await _unitOfWork.Commit();
+                }
+                
+                
 
                 var dishDetails = dish.DishSupplies.Select(x => new DishSupply
                 {
@@ -231,6 +251,17 @@ namespace Redpeper.Controllers
                 return BadRequest(e);
 
             }
+        }
+
+        [HttpGet("[action]/{id}/image")]
+        public async Task<IActionResult> GetDishImage(int id)
+        {
+            var dishImage = await _unitOfWork.DishImageRepository.GetByDishId(id);
+
+            if (dishImage == null) return NotFound();
+
+            return Ok(dishImage);
+            
         }
     }
 }

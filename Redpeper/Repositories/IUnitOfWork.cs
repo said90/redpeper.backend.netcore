@@ -26,6 +26,7 @@ namespace Redpeper.Repositories
         IComboDetailRepository ComboDetailRepository { get; }
         IDishSuppliesRepository DishSuppliesRepository { get; }
         IDishRepository DishRepository { get; }
+        IDishImageRepository DishImageRepository { get;}
         IDishCategoryRepository DishCategoryRepository { get; }
         IOrderRepository OrderRepository { get; }
         IOrderDetailRepository OrderDetailRepository { get; }
