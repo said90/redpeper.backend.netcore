@@ -138,6 +138,8 @@ namespace Redpeper.Controllers
                 table.CustomerLastName = null;
                 List<Table> tables = new List<Table>();
                 tables.Add(table);
+                _unitOfWork.TableRepository.Update(table);
+                await _unitOfWork.Commit();
                 await _orderHub.Clients.All.FreeTable(tables);
                 return Ok(table);
             }
