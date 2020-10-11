@@ -67,7 +67,7 @@ namespace Redpeper.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<Combo>> CreateCombo([FromBody] ComboDto combo)
+        public async Task<ActionResult<Combo>> CreateCombo([FromForm] ComboDto combo)
         {
             try
             {
@@ -153,7 +153,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateCombo([FromBody] ComboDto combo)
+        public async Task<IActionResult> UpdateCombo([FromForm] ComboDto combo)
         {
             try
             {
