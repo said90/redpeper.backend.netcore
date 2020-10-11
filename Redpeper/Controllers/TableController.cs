@@ -130,6 +130,8 @@ namespace Redpeper.Controllers
                 {
                     return NotFound(id);
                 }
+
+                table.CustomerId = null;
                 table.Customer = null;
                 table.State = 0;
                 table.CustomerLastName = null;
