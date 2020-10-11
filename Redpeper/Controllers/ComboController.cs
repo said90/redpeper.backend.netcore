@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Redpeper.Collection;
+using Redpeper.Dto;
 using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Order.Combos;
@@ -65,7 +67,7 @@ namespace Redpeper.Controllers
 
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<Combo>> CreateCombo([FromBody] Combo combo)
+        public async Task<ActionResult<Combo>> CreateCombo([FromBody] ComboDto combo)
         {
             try
             {
@@ -78,17 +80,47 @@ namespace Redpeper.Controllers
                 await _unitOfWork.ComboRepository.InsertTask(cmbo);
                 await _unitOfWork.Commit();
 
-                var maxCombo = await _unitOfWork.ComboRepository.LastRegisterTask();
-                var comboDetails = combo.ComboDetails.Select(x => new ComboDetail
-                {
-                    ComboId = maxCombo.Id,
-                    DishId = x.DishId,
-                    Price = x.Price,
-                    Qty = x.Qty
-                }).ToList();
 
-                await _unitOfWork.ComboDetailRepository.InsertRangeTask(comboDetails);
-                await _unitOfWork.Commit();
+                if (combo.Image !=null)
+                {
+                    var imageToRemove = await _unitOfWork.ComboImageRepository.GetByComboId(combo.Id);
+                    if (imageToRemove !=null)
+                    {
+                        await _unitOfWork.ComboImageRepository.DeleteTask(imageToRemove.Id);
+                    }
+
+                    var comboImage = new ComboImage
+                    {
+                        ComboId = cmbo.Id
+                    };
+
+                    using (var ms = new MemoryStream())
+                    {
+                        combo.Image.CopyTo(ms);
+                        comboImage.Image = ms.ToArray();
+                    }
+
+                    await _unitOfWork.ComboImageRepository.InsertTask(comboImage);
+                    await _unitOfWork.Commit();
+                }
+
+
+                if (!string.IsNullOrEmpty(combo.ComboDetails))
+                {
+                    var comboDetailsJson = JsonConvert.DeserializeObject<List<ComboDetail>>(combo.ComboDetails); ;
+
+                    var comboDetails = comboDetailsJson.Select(x => new ComboDetail
+                    {
+                        ComboId = cmbo.Id,
+                        DishId = x.DishId,
+                        Price = x.Price,
+                        Qty = x.Qty
+                    }).ToList();
+
+                    await _unitOfWork.ComboDetailRepository.InsertRangeTask(comboDetails);
+                    await _unitOfWork.Commit();
+                }
+               
                 return cmbo;
             }
             catch (Exception e)
@@ -121,7 +153,7 @@ namespace Redpeper.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateCombo([FromBody] Combo combo)
+        public async Task<IActionResult> UpdateCombo([FromBody] ComboDto combo)
         {
             try
             {
@@ -136,28 +168,61 @@ namespace Redpeper.Controllers
                 _unitOfWork.ComboRepository.Update(cmbo);
                 await _unitOfWork.Commit();
 
-                var comboDetails = combo.ComboDetails.Select(x => new ComboDetail
+                if (combo.Image != null)
                 {
-                    Id = x.Id,
-                    ComboId = combo.Id,
-                    DishId = x.DishId,
-                    Price = x.Price,
-                    Qty = x.Qty
-                }).ToList();
+                    var imageToRemove = await _unitOfWork.ComboImageRepository.GetByComboId(combo.Id);
+                    if (imageToRemove != null)
+                    {
+                        await _unitOfWork.ComboImageRepository.DeleteTask(imageToRemove.Id);
+                    }
 
-                var comboDetailsDb = await _unitOfWork.ComboDetailRepository.GetDetailsByComboNoTracking(combo.Id);
+                    var comboImage = new ComboImage
+                    {
+                        ComboId = cmbo.Id
+                    };
 
-                var ids = comboDetails.Select(x => x.Id);
+                    using (var ms = new MemoryStream())
+                    {
+                        combo.Image.CopyTo(ms);
+                        comboImage.Image = ms.ToArray();
+                    }
 
-                if (comboDetailsDb.Count >= comboDetails.Count)
-                {
-                    var removeDetail = comboDetailsDb.Where(p => !comboDetails.Any(p2 => p2.Id == p.Id)).ToList();
-                    _unitOfWork.ComboDetailRepository.DeleteRange(removeDetail);
+                    await _unitOfWork.ComboImageRepository.InsertTask(comboImage);
                     await _unitOfWork.Commit();
-
                 }
 
-                _unitOfWork.ComboDetailRepository.UpdateRange(comboDetails);
+                if (!string.IsNullOrEmpty(combo.ComboDetails))
+                {
+                    var comboDetailsJson = JsonConvert.DeserializeObject<List<ComboDetail>>(combo.ComboDetails); ;
+
+                    var comboDetails = comboDetailsJson.Select(x => new ComboDetail
+                    {
+                        ComboId = cmbo.Id,
+                        DishId = x.DishId,
+                        Price = x.Price,
+                        Qty = x.Qty
+                    }).ToList();
+
+                    await _unitOfWork.ComboDetailRepository.InsertRangeTask(comboDetails);
+                    await _unitOfWork.Commit();
+
+                    var comboDetailsDb = await _unitOfWork.ComboDetailRepository.GetDetailsByComboNoTracking(combo.Id);
+
+                    var ids = comboDetails.Select(x => x.Id);
+
+                    if (comboDetailsDb.Count >= comboDetails.Count)
+                    {
+                        var removeDetail = comboDetailsDb.Where(p => !comboDetails.Any(p2 => p2.Id == p.Id)).ToList();
+                        _unitOfWork.ComboDetailRepository.DeleteRange(removeDetail);
+                        await _unitOfWork.Commit();
+
+                    }
+
+                    _unitOfWork.ComboDetailRepository.UpdateRange(comboDetails);
+                }
+
+             
+
                 await _unitOfWork.Commit();
             }
             catch (Exception e)
