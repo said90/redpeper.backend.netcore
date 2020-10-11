@@ -18,7 +18,7 @@ namespace Redpeper.Repositories.Order.Combos
         }
         public async Task<List<Combo>> GetAllInludeDetails()
         {
-            return await _entities.Include(x=>x.ComboDetails).OrderBy(x => x.Id).ToListAsync();
+            return await _entities.Include(x => x.ComboImage).Include(x=>x.ComboDetails).OrderBy(x => x.Id).ToListAsync();
         }
         
         public async Task<Combo> GetByName(string name)
