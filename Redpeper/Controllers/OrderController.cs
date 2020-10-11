@@ -101,6 +101,9 @@ namespace Redpeper.Controllers
                 order.Id = or.Id;
                 order.OrderNumber = or.OrderNumber;
                 await _orderHub.Clients.All.OrderCreated(order);
+                or.Table.State = 1;
+                _unitOfWork.TableRepository.Update(or.Table);
+                await _unitOfWork.Commit();
                 return Ok(order);
             }
             catch (Exception e)

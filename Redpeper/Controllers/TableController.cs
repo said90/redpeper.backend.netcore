@@ -99,6 +99,8 @@ namespace Redpeper.Controllers
         {
             try
             {
+                
+
                 if (customer.Id== 0)
                 {
                     await _unitOfWork.CustomerRepository.InsertTask(customer);
@@ -106,10 +108,35 @@ namespace Redpeper.Controllers
                 }
                 var table = await _unitOfWork.TableRepository.GetByIdTask(id);
                 table.CustomerId = customer.Id;
-                table.State = 1;
+                table.State =2;
                 _unitOfWork.TableRepository.Update(table);
                 await _unitOfWork.Commit();
                 await _orderHub.Clients.All.BussyTable(table);
+                return Ok(table);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [HttpPatch("[action]/{id}")]
+        public async Task<ActionResult<Table>> FreeTable(int id)
+        {
+            try
+            {
+                var table = await _unitOfWork.TableRepository.GetByIdTask(id);
+                if (table ==null)
+                {
+                    return NotFound(id);
+                }
+                table.Customer = null;
+                table.State = 0;
+                table.CustomerLastName = null;
+                table.CustomerLastName = null;
+                List<Table> tables = new List<Table>();
+                tables.Add(table);
+                await _orderHub.Clients.All.FreeTable(tables);
                 return Ok(table);
             }
             catch (Exception e)
