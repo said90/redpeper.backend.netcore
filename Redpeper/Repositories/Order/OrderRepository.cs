@@ -21,6 +21,11 @@ namespace Redpeper.Repositories.Order
             return await _entities.Include(x=> x.Table).Include(x=>x.Customer).Include(x=>x.OrderDetails).ToListAsync();
         }
 
+        public async Task<List<Model.Order>> GetActiveOrders()
+        {
+            return await _entities.Include(x => x.OrderDetails).Where(x => !x.Status.Equals("Cobrado")).ToListAsync();
+        }
+
         public async Task<List<Model.Order>> GetOrderByEmployee(int employeeId)
         {
             return await _entities.Include(x => x.Table).Include(x => x.Customer).Include(x => x.OrderDetails).Where(x=>x.EmployeeId == employeeId).ToListAsync();

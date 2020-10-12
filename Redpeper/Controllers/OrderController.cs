@@ -37,7 +37,7 @@ namespace Redpeper.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Order>>> GetAll()
         {
-            return await _unitOfWork.OrderRepository.GetOrderByEmployee(int.Parse(User.Identity.GetEmployeeId()));
+            return await _unitOfWork.OrderRepository.GetActiveOrders();
         }
 
         [HttpGet("[action]/{id}")]
