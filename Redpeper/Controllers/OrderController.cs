@@ -101,9 +101,11 @@ namespace Redpeper.Controllers
                 order.Id = or.Id;
                 order.OrderNumber = or.OrderNumber;
                 await _orderHub.Clients.All.OrderCreated(order);
-                or.Table.State = 1;
-                _unitOfWork.TableRepository.Update(or.Table);
+                var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
+                table.State = 1;
+                _unitOfWork.TableRepository.Update(table);
                 await _unitOfWork.Commit();
+                await _orderHub.Clients.All.BussyTable(table);
                 return Ok(order);
             }
             catch (Exception e)
