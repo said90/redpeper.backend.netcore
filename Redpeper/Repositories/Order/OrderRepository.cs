@@ -23,7 +23,7 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<Model.Order>> GetActiveOrders()
         {
-            return await _entities.Include(x => x.OrderDetails).Where(x => !x.Status.Equals("Cobrado") || !x.Status.Equals("Anulado")).ToListAsync();
+            return await _entities.Include(x => x.OrderDetails).Where(x => !x.Status.Equals("Cobrado") && !x.Status.Equals("Anulado")).ToListAsync();
         }
 
         public async Task<List<Model.Order>> GetOrderByEmployee(int employeeId)
