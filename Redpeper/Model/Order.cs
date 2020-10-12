@@ -19,5 +19,6 @@ namespace Redpeper.Model
         public string Status { get; set; }
         public virtual List<OrderDetail> OrderDetails { get; set; }
         public int EmployeeId { get; set; }
+        public string NotificationToken { get; set; }
     }
 }

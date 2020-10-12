@@ -70,7 +70,8 @@ namespace Redpeper.Controllers
                     Date = DateTime.Now,
                     Total = order.Total,
                     Status = "Abierta",
-                    EmployeeId = int.Parse(User.Identity.GetEmployeeId())
+                    EmployeeId = int.Parse(User.Identity.GetEmployeeId()),
+                    NotificationToken = order.NotificationToken
                 };
                 var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
                 if (table.State == 1)
