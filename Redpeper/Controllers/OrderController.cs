@@ -63,7 +63,6 @@ namespace Redpeper.Controllers
         {
             try
             {
-
                 var or = new Order
                 {
                     CustomerId = order.CustomerId,
@@ -76,7 +75,7 @@ namespace Redpeper.Controllers
                 var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
                 if (table.State == 1)
                 {
-                    return Conflict(new { table = table.Id, message = "Table already bussy" });
+                    return Conflict(new { table = table.Id, message = "Order Already Created" });
                 }
                 order.Date = DateTime.Now;
                 order.Status = "Abierta";
@@ -94,7 +93,8 @@ namespace Redpeper.Controllers
                     Status = "En Cola",
                     Total = x.Total,
                     Comments = x.Comments,
-                    UnitPrice = x.UnitPrice
+                    UnitPrice = x.UnitPrice,
+                    EmployeeId = int.Parse(User.Identity.GetEmployeeId())
                 }).ToList();
 
 
@@ -123,7 +123,6 @@ namespace Redpeper.Controllers
         {
             if (id !=0 && orderDetailsToUpdate.Count>0)
             {
-
                 var orderAsNoTracking = await _unitOfWork.OrderRepository.GetByIdNoTracking(id);
                 if (orderAsNoTracking==null)
                 {
@@ -147,7 +146,11 @@ namespace Redpeper.Controllers
                 {
                     return BadRequest(new {errors = "Only send details with state 'En Cola', the update was not applied ", orderDetailsNotValidState});
                 }
-                orderDetailsToUpdate.ForEach(x=>x.Status= "En Cola");
+                orderDetailsToUpdate.ForEach(x=>
+                {
+                    x.Status = "En Cola";
+                    x.EmployeeId = int.Parse(User.Identity.GetEmployeeId());
+                });
                 _unitOfWork.OrderDetailRepository.UpdateRange(orderDetailsToUpdate);
                 await _unitOfWork.Commit();
 
@@ -337,6 +340,13 @@ namespace Redpeper.Controllers
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.FreeTable(tables);
                         return Ok();
+                    case 4:
+                        orders.ForEach(x =>
+                        {
+                            x.Status = "Anulado";
+                            x.OrderDetails.ForEach(y => { y.Status = "Anulado"; });
+                        });
+                        return Ok(orders);
 
                     default:
                         return BadRequest(new BadRequestObjectResult("Invalid Status Provided"));

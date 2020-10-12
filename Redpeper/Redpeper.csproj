@@ -12,6 +12,8 @@
     <Compile Remove="Migrations\20200906232046_AddingEmployeeIdToOrderAndUserIdToEmployee.Designer.cs" />
     <Compile Remove="Migrations\20201010002253_AddingTablesForImage.cs" />
     <Compile Remove="Migrations\20201010002253_AddingTablesForImage.Designer.cs" />
+    <Compile Remove="Migrations\20201012043439_AddingEmployeeIdToOrderDetails.cs" />
+    <Compile Remove="Migrations\20201012043439_AddingEmployeeIdToOrderDetails.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

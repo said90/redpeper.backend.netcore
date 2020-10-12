@@ -20,5 +20,6 @@ namespace Redpeper.Model
         public string Comments { get; set; }
         public double Total { get; set; }
         public string Status { get; set; }
+        public int EmployeeId { get; set; }
     }
 }
