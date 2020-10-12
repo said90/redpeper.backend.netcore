@@ -73,6 +73,11 @@ namespace Redpeper.Controllers
                     Status = "Abierta",
                     EmployeeId = int.Parse(User.Identity.GetEmployeeId())
                 };
+                var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
+                if (table.State == 1)
+                {
+                    return Conflict(new { table = table.Id, message = "Table already bussy" });
+                }
                 order.Date = DateTime.Now;
                 order.Status = "Abierta";
                 or.OrderNumber = "O-" + ( await _unitOfWork.OrderRepository.CountTask() + 1);
@@ -101,7 +106,6 @@ namespace Redpeper.Controllers
                 order.Id = or.Id;
                 order.OrderNumber = or.OrderNumber;
                 await _orderHub.Clients.All.OrderCreated(order);
-                var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
                 table.State = 1;
                 _unitOfWork.TableRepository.Update(table);
                 await _unitOfWork.Commit();
