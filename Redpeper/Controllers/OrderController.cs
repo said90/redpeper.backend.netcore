@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -409,6 +410,29 @@ namespace Redpeper.Controllers
             await _orderHub.Clients.All.FreeTable(tables);
             return Ok(order);
 
+        }
+
+        [HttpDelete("{orderId}/orderDetail/{detailId}")]
+        public async Task<IActionResult> DeleteDetail(int orderId, int detailId)
+        {
+            var order = await _unitOfWork.OrderRepository.GetByIdNoTracking(orderId);
+
+            if (order ==null)
+            {
+                return NotFound(new {Id = orderId, message = "Order not found"});
+            }
+
+            var orderDetail = await _unitOfWork.OrderDetailRepository.GetByIdTask(detailId);
+
+            if (orderDetail == null)
+            {
+                return NotFound(new { Id = orderDetail, message = "Order detail not found" });
+
+            }
+
+            await _unitOfWork.OrderDetailRepository.DeleteTask(detailId);
+
+            return Ok(orderDetail);
         }
 
         //[HttpPost("{orderId}/[action]")]
