@@ -431,7 +431,7 @@ namespace Redpeper.Controllers
             }
 
             await _unitOfWork.OrderDetailRepository.DeleteTask(detailId);
-
+            await _unitOfWork.Commit();
             return Ok(orderDetail);
         }
 
