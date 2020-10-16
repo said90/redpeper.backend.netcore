@@ -28,6 +28,7 @@ using Redpeper.Repositories.Order.Combos;
 using Redpeper.Repositories.Order.Dishes;
 using Redpeper.Repositories.Orders;
 using Redpeper.Repositories.Tables;
+using Redpeper.Services.Expo;
 using Redpeper.Services.Inventory;
 
 namespace Redpeper
@@ -119,6 +120,7 @@ namespace Redpeper
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserHelper, UserHelper>();
+            services.AddScoped<IExpoServices, ExpoServices>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSignalR();
 

@@ -13,6 +13,8 @@ namespace Redpeper.Repositories.Orders
         Task<Model.Order> GetByIdWithDetails(int id);
         Task<Model.Order> GetByIdNoTracking(int id);
         Task<List<Model.Order>> GetByRangeId(List<int> ids);
+        Task<List<Model.Order>> GetByRangeIdNoIncludes(List<int> ids);
+
         Task<Model.Order> GetByOrderNumber(string number);
         Task<int> GetOrderNumber();
         Task<List<Model.Order>> GetOrdersByStatus(string status);

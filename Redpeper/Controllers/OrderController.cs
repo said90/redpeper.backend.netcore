@@ -16,6 +16,7 @@ using Redpeper.Repositories;
 using Redpeper.Repositories.Order;
 using Redpeper.Repositories.Orders;
 using Redpeper.Repositories.Tables;
+using Redpeper.Services.Expo;
 
 namespace Redpeper.Controllers
 {
@@ -26,12 +27,14 @@ namespace Redpeper.Controllers
     {
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
         private readonly IUnitOfWork _unitOfWork;
+        private IExpoServices _expoServices;
 
 
-        public OrderController(IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub)
+        public OrderController(IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub, IExpoServices expoServices)
         {
             _unitOfWork = unitOfWork;
             _orderHub = orderHub;
+            _expoServices = expoServices;
         }
 
         [HttpGet]
@@ -237,6 +240,19 @@ namespace Redpeper.Controllers
                         _unitOfWork.OrderDetailRepository.UpdateRange(details);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.DetailsFinished(details);
+
+                        var orderIds = details.Select(x => x.OrderId).ToList();
+
+                        var orders = await _unitOfWork.OrderRepository.GetByRangeIdNoIncludes(orderIds);
+
+                        var notifications = details.Select(x => new NotificationOrderDto
+                        {
+                            OrderDetail = x,
+                            Title = "Platillo Listo Para Entregar",
+                            Token = orders.Where(y=> y.Id == x.OrderId).Select(y=> y.NotificationToken).FirstOrDefault()
+                        }).ToList();
+
+                        await _expoServices.SendPushNotification(notifications);
                         return Ok(details);
 
                     case 4:
@@ -398,7 +414,7 @@ namespace Redpeper.Controllers
         //[HttpPost("{orderId}/[action]")]
         //public async Task<IActionResult> DivideOrder(int orderId,[FromBody] List<OrderDto> orders)
         //{
-            
+
         //    if (!await _unitOfWork.OrderRepository.ExistAsync(orderId)) return BadRequest(orderId);
 
 
@@ -441,5 +457,6 @@ namespace Redpeper.Controllers
 
         //    return Ok(new {originalOrder, newOrders });
         //}
+     
     }
 }

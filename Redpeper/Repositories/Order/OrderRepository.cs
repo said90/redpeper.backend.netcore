@@ -47,6 +47,11 @@ namespace Redpeper.Repositories.Order
             return await _entities.Include(x=>x.OrderDetails).Where(x => ids.Contains(x.Id)).ToListAsync();
         }
 
+        public async Task<List<Model.Order>> GetByRangeIdNoIncludes(List<int> ids)
+        {
+            return await _entities.Where(x => ids.Contains(x.Id)).Distinct().ToListAsync();
+        }
+
         public async Task<Model.Order> GetByOrderNumber(string number)
         {
             return await _entities.FirstOrDefaultAsync(x => x.OrderNumber == number);
