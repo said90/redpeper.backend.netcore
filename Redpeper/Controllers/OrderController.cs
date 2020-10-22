@@ -430,11 +430,10 @@ namespace Redpeper.Controllers
 
             }
 
-
+            await _unitOfWork.OrderDetailRepository.DeleteTask(detailId);
+            await _unitOfWork.Commit();
             var order = await _unitOfWork.OrderRepository.GetByIdWithDetails(orderId);
             order.Total = (decimal)order.OrderDetails.Sum(x => x.Total);
-
-            await _unitOfWork.OrderDetailRepository.DeleteTask(detailId);
             await _unitOfWork.Commit();
             return Ok(orderDetail);
         }
