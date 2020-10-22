@@ -415,9 +415,9 @@ namespace Redpeper.Controllers
         [HttpDelete("{orderId}/orderDetail/{detailId}")]
         public async Task<IActionResult> DeleteDetail(int orderId, int detailId)
         {
-            var order = await _unitOfWork.OrderRepository.GetByIdNoTracking(orderId);
+            var orderAsNoTracking = await _unitOfWork.OrderRepository.GetByIdNoTracking(orderId);
 
-            if (order ==null)
+            if (orderAsNoTracking ==null)
             {
                 return NotFound(new {Id = orderId, message = "Order not found"});
             }
@@ -429,6 +429,10 @@ namespace Redpeper.Controllers
                 return NotFound(new { Id = orderDetail, message = "Order detail not found" });
 
             }
+
+
+            var order = await _unitOfWork.OrderRepository.GetByIdWithDetails(orderId);
+            order.Total = (decimal)order.OrderDetails.Sum(x => x.Total);
 
             await _unitOfWork.OrderDetailRepository.DeleteTask(detailId);
             await _unitOfWork.Commit();
