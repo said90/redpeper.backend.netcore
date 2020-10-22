@@ -23,6 +23,7 @@ namespace Redpeper.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<InventorySupplyTransaction> InventorySupplyTransactions { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderType> OrderTypes { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Provider> Providers { get; set; }
         public DbSet<Supply> Supplies { get; set; }

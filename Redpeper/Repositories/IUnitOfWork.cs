@@ -31,6 +31,7 @@ namespace Redpeper.Repositories
         IDishCategoryRepository DishCategoryRepository { get; }
         IOrderRepository OrderRepository { get; }
         IOrderDetailRepository OrderDetailRepository { get; }
+        IOrderTypeRepository OrderTypeRepository { get; }
         ICurrentInventorySupplyRepository CurrentInventorySupplyRepository { get; }
         IInventorySupplyTransactionRepository InventorySupplyTransactionRepository { get; }
         IUserRepository UserRepository { get; }

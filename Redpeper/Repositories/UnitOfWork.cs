@@ -37,6 +37,7 @@ namespace Redpeper.Repositories
             DishCategoryRepository = new DishCategoryRepository(_dataContext);
             DishImageRepository = new DishImageRepository(_dataContext);
             OrderRepository = new OrderRepository(_dataContext);
+            OrderTypeRepository = new OrderTypeRepository(_dataContext);
             OrderDetailRepository = new OrderDetailRepository(_dataContext);
             CurrentInventorySupplyRepository = new CurrentInventorySupplyRepository(_dataContext);
             InventorySupplyTransactionRepository = new InventorySupplyTransactionRepository(_dataContext);
@@ -59,6 +60,7 @@ namespace Redpeper.Repositories
         public IDishCategoryRepository DishCategoryRepository { get; set; }
         public IOrderRepository OrderRepository { get; set; }
         public IOrderDetailRepository OrderDetailRepository { get; set; }
+        public IOrderTypeRepository OrderTypeRepository { get; set; }
         public ICurrentInventorySupplyRepository CurrentInventorySupplyRepository { get; set; }
         public IInventorySupplyTransactionRepository InventorySupplyTransactionRepository { get; set; }
         public IUserRepository UserRepository { get; set; }
