@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Redpeper.Data;
 using Redpeper.Helper;
 using Redpeper.Hubs;
@@ -100,6 +101,11 @@ namespace Redpeper
             });
 
             services.AddMvc();
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Redpepper API", Version = "v1" });
+            });
+
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IProviderRepository, ProviderRepository>();
@@ -134,7 +140,11 @@ namespace Redpeper
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Redpepper API");
+            });
             app.UseCors();
             app.UseCors("ReactClient");
             app.UseCors("MobileClient");
