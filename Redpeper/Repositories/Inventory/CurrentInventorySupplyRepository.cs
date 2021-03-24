@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Redpeper.Data;
+using Redpeper.Dto;
 using Redpeper.Model;
 
 namespace Redpeper.Repositories.Inventory
 {
-    public class CurrentInventorySupplyRepository :BaseRepository<CurrentInventorySupply>, ICurrentInventorySupplyRepository
+    public class CurrentInventorySupplyRepository : BaseRepository<CurrentInventorySupply>,
+        ICurrentInventorySupplyRepository
     {
-
         public CurrentInventorySupplyRepository(DataContext dataContext) : base(dataContext)
         {
         }
@@ -21,33 +22,37 @@ namespace Redpeper.Repositories.Inventory
             throw new NotImplementedException();
         }
 
-        public Task<List<CurrentInventorySupply>> GetAllActualInventory()
+        public Task<List<InventoryDto>> GetAllActualInventory()
         {
-
-            return _entities.GroupBy(x => x.SupplyId).Select(y => new CurrentInventorySupply
+            return _dataContext.InventorySupplyTransactions.GroupBy(x => x.SupplyId).Select(y => new InventoryDto
             {
-                Date =y.First().Date,
-                Id = y.First().Id,
-                SupplyId = y.First().SupplyId,
-                Supply = y.First().Supply,
-                Qty = y.Sum(z=>z.Qty)
-            }).ToListAsync();
-            
+                Supply = y.First().Supply.Name,
+                Qty = y.Sum(z => z.Qty)
+            }).OrderBy(x=> x.Supply).ToListAsync();
         }
 
         public Task<List<CurrentInventorySupply>> GetByDateRange(DateTime startDate, DateTime endDate)
         {
-            throw new NotImplementedException();
+            return _entities.GroupBy(x => x.SupplyId).Select(y => new CurrentInventorySupply
+            {
+                Date = y.First().Date,
+                Id = y.First().Id,
+                SupplyId = y.First().SupplyId,
+                Supply = y.First().Supply,
+                Qty = y.Sum(z => z.Qty)
+            }).Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
         }
 
         public Task<List<CurrentInventorySupply>> GetByExpirationDateRange(DateTime startDate, DateTime endDate)
         {
-            throw new NotImplementedException();
+            return _entities.GroupBy(x => x.SupplyId).Select(y => new CurrentInventorySupply
+            {
+                Date = y.First().Date,
+                Id = y.First().Id,
+                SupplyId = y.First().SupplyId,
+                Supply = y.First().Supply,
+                Qty = y.Sum(z => z.Qty)
+            }).Where(x => x.ExpirationDate >= startDate && x.ExpirationDate <= endDate).ToListAsync();
         }
-
-       
-        
-
-
     }
 }

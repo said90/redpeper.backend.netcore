@@ -10,5 +10,6 @@ namespace Redpeper.Services.Inventory
     public interface IInventoryService
     {
         Task AddInvoiceDetailToInventory(InvoiceSupplyDto invoice);
+        Task<Byte[]> ActualInventorySupplyExcel();
     }
 }

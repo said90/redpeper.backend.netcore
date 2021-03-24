@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.DotNet.PlatformAbstractions.Native;
+using OfficeOpenXml.Utils;
 using Redpeper.Dto;
 using Redpeper.Model;
 using Redpeper.Repositories;
 using Redpeper.Repositories.Inventory;
+using Redpeper.Services.Inventory.Templates;
 
 namespace Redpeper.Services.Inventory
 {
@@ -45,5 +47,13 @@ namespace Redpeper.Services.Inventory
             await _unitOfWork.InventorySupplyTransactionRepository.InsertRangeTask(inventoryTransaction);
             await _unitOfWork.Commit();
         }
+
+        public async Task<Byte[]> ActualInventorySupplyExcel()
+        {
+            var inventory = await _unitOfWork.CurrentInventorySupplyRepository.GetAllActualInventory();
+            var excel = new InventoryExcelTemplate();
+            var fileContents = excel.GenerateExcelReport(inventory);
+            return fileContents;
+        } 
     }
 }

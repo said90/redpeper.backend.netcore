@@ -11,7 +11,7 @@ namespace Redpeper.Repositories
 {
     public class BaseRepository<T>: IRepository<T> where T : class
     {
-        private readonly DataContext _dataContext;
+        protected readonly DataContext _dataContext;
         protected readonly DbSet<T> _entities; 
 
 
