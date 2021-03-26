@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.DotNet.PlatformAbstractions.Native;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.Utils;
 using Redpeper.Dto;
 using Redpeper.Model;
@@ -27,6 +28,8 @@ namespace Redpeper.Services.Inventory
         {
             var inventoryDetails = invoice.Details.Select(x => new CurrentInventorySupply
             {
+                TransactionType = 0,
+                TransactionNumber = invoice.InvoiceNumber,
                 ExpirationDate = x.ExpirationDate,
                 Qty = x.Quantity,
                 SupplyId = x.SupplyId
@@ -54,6 +57,14 @@ namespace Redpeper.Services.Inventory
             var excel = new InventoryExcelTemplate();
             var fileContents = excel.GenerateExcelReport(inventory);
             return fileContents;
-        } 
+        }
+
+        public async Task<Byte[]> ActualInventorySupplyExcelByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var inventory = await _unitOfWork.CurrentInventorySupplyRepository.GetByDateRange(startDate,endDate);
+            var excel = new InventoryExcelTemplate();
+            var fileContents = excel.GenerateExcelReport(inventory);
+            return fileContents;
+        }
     }
 }

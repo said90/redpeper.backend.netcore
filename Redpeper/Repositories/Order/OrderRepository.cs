@@ -57,9 +57,9 @@ namespace Redpeper.Repositories.Order
             return await _entities.FirstOrDefaultAsync(x => x.OrderNumber == number);
         }
 
-        public Task<int> GetOrderNumber()
+        public async Task<string> GetOrderNumber(int orderId)
         {
-            throw new NotImplementedException();
+            return await _entities.Where(x=> x.Id == orderId).Select(x=> x.OrderNumber).SingleOrDefaultAsync();
         }
 
         public async Task<List<Model.Order>> GetOrdersByStatus(string status)

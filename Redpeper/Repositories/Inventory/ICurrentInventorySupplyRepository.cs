@@ -11,7 +11,7 @@ namespace Redpeper.Repositories.Inventory
     {
         Task<List<InventoryDto>> GetAllActualInventory();
         Task<List<CurrentInventorySupply>> GetActualInventoryBySupply(int supplyId);
-        Task<List<CurrentInventorySupply>> GetByDateRange(DateTime startDate, DateTime endDate);
+        Task<List<InventoryDto>> GetByDateRange(DateTime startDate, DateTime endDate);
         Task<List<CurrentInventorySupply>> GetByExpirationDateRange(DateTime startDate, DateTime endDate);
      
 

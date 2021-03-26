@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Redpeper.Dto;
@@ -176,6 +177,8 @@ namespace Redpeper.Controllers
             if (orderDetails.DetailsId != null && orderDetails.DetailsId.Any(x => x != 0))
             {
                 var details = await _unitOfWork.OrderDetailRepository.GetByRangeId(orderDetails.DetailsId);
+                var orderId= details.First().OrderId;
+                var orderNumber = await _unitOfWork.OrderRepository.GetOrderNumber(orderId);
                 var detailsWithDifferentState = new List<OrderDetail>();
                 switch (orderDetails.Status)
                 {
@@ -201,6 +204,8 @@ namespace Redpeper.Controllers
                                    {
                                        var inventorySupplyTransaction = new InventorySupplyTransaction
                                        {
+                                           TransactionType = 1,
+                                           TransactionNumber = orderNumber,
                                            Date = DateTime.Now,
                                            ExpirationDate = DateTime.Now,
                                            Qty = -z.Qty,
@@ -216,6 +221,8 @@ namespace Redpeper.Controllers
                                 {
                                     var inventorySupplyTransaction = new InventorySupplyTransaction
                                     {
+                                        TransactionType = 1,
+                                        TransactionNumber = orderNumber,
                                         Date = DateTime.Now,
                                         ExpirationDate = DateTime.Now,
                                         Qty =-y.Qty,

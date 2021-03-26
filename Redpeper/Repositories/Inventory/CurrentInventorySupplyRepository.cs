@@ -28,19 +28,17 @@ namespace Redpeper.Repositories.Inventory
             {
                 Supply = y.First().Supply.Name,
                 Qty = y.Sum(z => z.Qty)
-            }).OrderBy(x=> x.Supply).ToListAsync();
+            }).OrderBy(x => x.Supply).ToListAsync();
         }
 
-        public Task<List<CurrentInventorySupply>> GetByDateRange(DateTime startDate, DateTime endDate)
+        public Task<List<InventoryDto>> GetByDateRange(DateTime startDate, DateTime endDate)
         {
-            return _entities.GroupBy(x => x.SupplyId).Select(y => new CurrentInventorySupply
-            {
-                Date = y.First().Date,
-                Id = y.First().Id,
-                SupplyId = y.First().SupplyId,
-                Supply = y.First().Supply,
-                Qty = y.Sum(z => z.Qty)
-            }).Where(x => x.Date >= startDate && x.Date <= endDate).ToListAsync();
+            return _dataContext.InventorySupplyTransactions.Where(x => x.Date >= startDate && x.Date <= endDate).GroupBy(x => x.SupplyId)
+                .Select(y => new InventoryDto
+                {
+                    Supply = y.First().Supply.Name,
+                    Qty = y.Sum(z => z.Qty)
+                }).ToListAsync();
         }
 
         public Task<List<CurrentInventorySupply>> GetByExpirationDateRange(DateTime startDate, DateTime endDate)

@@ -11,5 +11,6 @@ namespace Redpeper.Services.Inventory
     {
         Task AddInvoiceDetailToInventory(InvoiceSupplyDto invoice);
         Task<Byte[]> ActualInventorySupplyExcel();
+        Task<Byte[]> ActualInventorySupplyExcelByDateRange(DateTime startDate, DateTime endDate);
     }
 }
