@@ -62,10 +62,26 @@ namespace Redpeper.Controllers
             return await _unitOfWork.InventorySupplyTransactionRepository.ByDate(date);
         }
 
+        [HttpGet("transaction/Excel")]
+        public async Task<IActionResult> TransactionsExcel(DateTime date)
+        {
+            var file = await _inventoryService.InventoryTransactionsExcel(date);
+            return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"Detalle de operaciones_{date.Date.ToString("dd/MM/yyyy")}.xlsx");
+        }
+
         [HttpGet("transaction/DateRange")]
         public async Task<List<InventoryTransactionDto>> TransactionDateRange(DateTime initDate, DateTime endDate)
         {
             return await _unitOfWork.InventorySupplyTransactionRepository.ByDateRange(initDate,endDate);
+        }
+
+        [HttpGet("transaction/DateRange/excel")]
+        public async Task<IActionResult> TransactionDateRangeExcel(DateTime startDate, DateTime endDate)
+        {
+            var file = await _inventoryService.InventoryTransactionsByDateRangeExcel(startDate, endDate);
+            return File(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"Detalle de operaciones_{startDate.Date:dd/MM/yyyy}_{endDate.Date:dd/MM/yyyy}.xlsx");
         }
 
         [HttpGet("{supplyId}/transaction/{date}")]

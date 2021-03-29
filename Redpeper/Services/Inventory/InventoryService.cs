@@ -66,5 +66,21 @@ namespace Redpeper.Services.Inventory
             var fileContents = excel.GenerateExcelReport(inventory);
             return fileContents;
         }
+
+        public async Task<Byte[]> InventoryTransactionsExcel(DateTime date)
+        {
+            var transactions = await _unitOfWork.InventorySupplyTransactionRepository.ByDate(date);
+            var excel = new TransactionsInventoryExcelTemplate();
+            var fileContents = excel.GenerateExcelReport(transactions, date);
+            return fileContents;
+        }
+
+        public async Task<Byte[]> InventoryTransactionsByDateRangeExcel(DateTime initDate, DateTime endDate)
+        {
+            var transactions = await _unitOfWork.InventorySupplyTransactionRepository.ByDateRange(initDate,endDate);
+            var excel = new TransactionsInventoryByDateRangeExcelTemplate();
+            var fileContents = excel.GenerateExcelReport(transactions, initDate,endDate);
+            return fileContents;
+        }
     }
 }
