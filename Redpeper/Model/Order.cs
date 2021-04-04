@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace Redpeper.Model
     {
         public int Id { get; set; }
         public int OrderTypeId { get; set; }
+        [ForeignKey("OrderTypeId")]
+        public virtual OrderType OrderType { get; set; }
         public string OrderNumber { get; set; }
         public DateTime Date { get; set; }
         public int CustomerId { get; set; }

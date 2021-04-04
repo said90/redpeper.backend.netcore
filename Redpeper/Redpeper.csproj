@@ -14,6 +14,8 @@
     <Compile Remove="Migrations\20201010002253_AddingTablesForImage.Designer.cs" />
     <Compile Remove="Migrations\20201012043439_AddingEmployeeIdToOrderDetails.cs" />
     <Compile Remove="Migrations\20201012043439_AddingEmployeeIdToOrderDetails.Designer.cs" />
+    <Compile Remove="Migrations\20210404063543_AddingVirtualObjectOrderTypeOnTableOrder.cs" />
+    <Compile Remove="Migrations\20210404063543_AddingVirtualObjectOrderTypeOnTableOrder.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

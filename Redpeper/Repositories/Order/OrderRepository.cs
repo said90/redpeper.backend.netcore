@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Redpeper.Data;
+using Redpeper.Dto;
 using Redpeper.Model;
 using Redpeper.Repositories.Orders;
 
@@ -67,5 +68,38 @@ namespace Redpeper.Repositories.Order
             return await _entities.Where(x => x.Status == status).ToListAsync();
         }
 
+        public async Task<List<Model.Order>> GetOrdersByDate(DateTime date)
+        {
+            return await _entities.Include(x => x.OrderDetails).Where(x => x.Date == date).ToListAsync();
+        }
+
+        public async Task<List<Model.Order>> GetOrdersByDateRange(DateTime date)
+        {
+            return await _entities.Include(x => x.OrderDetails).Where(x => x.Date == date).ToListAsync();
+        }
+
+        public async Task<List<OrderReportDto>> GetOrdersByDateReport(DateTime date)
+        {
+            return await _entities.Where(x => x.Date == date).Select(x => new OrderReportDto
+            {
+                Date = x.Date,
+                Total = x.Total,
+                OrderNumber = x.OrderNumber,
+                OrderType = x.OrderType.Name,
+                Customer = $"{x.Customer.Name} {x.Customer.Lastname}"
+            }).ToListAsync();
+        }
+
+        public async Task<List<OrderReportDto>> GetOrdersByDateRangeReport(DateTime initDate, DateTime endDate)
+        {
+            return await _entities.Where(x => x.Date >= initDate && x.Date <= endDate).Select(x => new OrderReportDto
+            {
+                Date = x.Date,
+                Total = x.Total,
+                OrderNumber = x.OrderNumber,
+                OrderType = x.OrderType.Name,
+                Customer = $"{x.Customer.Name} {x.Customer.Lastname}"
+            }).ToListAsync();
+        }
     }
 }

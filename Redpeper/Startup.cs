@@ -31,6 +31,7 @@ using Redpeper.Repositories.Orders;
 using Redpeper.Repositories.Tables;
 using Redpeper.Services.Expo;
 using Redpeper.Services.Inventory;
+using Redpeper.Services.Sales;
 
 namespace Redpeper
 {
@@ -127,6 +128,7 @@ namespace Redpeper
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserHelper, UserHelper>();
+            services.AddScoped<ISalesService, SalesService>();
             services.AddScoped<IExpoServices, ExpoServices>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSignalR();
