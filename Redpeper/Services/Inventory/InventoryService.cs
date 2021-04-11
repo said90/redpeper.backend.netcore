@@ -41,6 +41,7 @@ namespace Redpeper.Services.Inventory
             });
             var inventoryTransaction= inventoryDetails.Select(x => new InventorySupplyTransaction
             {
+                TransactionNumber = x.TransactionNumber,
                 ExpirationDate = x.ExpirationDate,
                 SupplyId = x.SupplyId,
                 Date = x.Date,

@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.UI.V3.Pages.Internal.Account;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Redpeper.Dto;
 using Redpeper.Extensions;
 using Redpeper.Hubs;
 using Redpeper.Hubs.Clients;
-using Redpeper.Migrations;
 using Redpeper.Model;
 using Redpeper.Repositories;
-using Redpeper.Repositories.Order;
-using Redpeper.Repositories.Orders;
-using Redpeper.Repositories.Tables;
 using Redpeper.Services.Expo;
 
 namespace Redpeper.Controllers
@@ -74,15 +68,17 @@ namespace Redpeper.Controllers
                     TableId = order.TableId,
                     Date = DateTime.Now,
                     Total = order.Total,
+                    OrderTypeId = order.OrderType,
                     Status = "Abierta",
-                    EmployeeId = int.Parse(User.Identity.GetEmployeeId()),
                     NotificationToken = order.NotificationToken
                 };
                 var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
+               
                 if (table.State == 1)
                 {
                     return Conflict(new { table = table.Id, message = "Order Already Created" });
                 }
+                
                 order.Date = DateTime.Now;
                 order.Status = "Abierta";
                 or.OrderNumber = "O-" + ( await _unitOfWork.OrderRepository.CountTask() + 1);
