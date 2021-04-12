@@ -169,7 +169,6 @@ namespace Redpeper.Controllers
                 orderDetailsToUpdate.ForEach(x=>
                 {
                     x.Status = "En Cola";
-                    x.EmployeeId = int.Parse(User.Identity.GetEmployeeId());
                 });
                 _unitOfWork.OrderDetailRepository.UpdateRange(orderDetailsToUpdate);
                 await _unitOfWork.Commit();
