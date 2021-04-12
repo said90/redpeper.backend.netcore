@@ -62,57 +62,66 @@ namespace Redpeper.Controllers
         {
             try
             {
-                var or = new Order
+                if (ModelState.IsValid)
                 {
-                    CustomerId = order.CustomerId,
-                    TableId = order.TableId,
-                    Date = DateTime.Now,
-                    Total = order.Total,
-                    OrderTypeId = order.OrderType,
-                    Status = "Abierta",
-                    NotificationToken = order.NotificationToken
-                };
-                var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
-               
-                if (table.State == 1)
-                {
-                    return Conflict(new { table = table.Id, message = "Order Already Created" });
+
+
+                    var or = new Order
+                    {
+                        CustomerId = order.CustomerId,
+                        TableId = order.TableId,
+                        Date = DateTime.Now,
+                        Total = order.Total,
+                        OrderTypeId = order.OrderType,
+                        Status = "Abierta",
+                        NotificationToken = order.NotificationToken
+                    };
+                    var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
+
+                    if (table.State == 1)
+                    {
+                        return Conflict(new {table = table.Id, message = "Order Already Created"});
+                    }
+
+                    order.Date = DateTime.Now;
+                    order.Status = "Abierta";
+                    or.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
+                    await _unitOfWork.OrderRepository.InsertTask(or);
+                    await _unitOfWork.Commit();
+
+                    var details = order.OrderDetails.Select(x => new OrderDetail
+                    {
+                        DishId = x.DishId != 0 ? x.DishId : null,
+                        ComboId = x.ComboId != 0 ? x.ComboId : null,
+                        Discount = x.Discount,
+                        Qty = x.Qty,
+                        OrderId = or.Id,
+                        Status = "En Cola",
+                        Total = x.Total,
+                        Comments = x.Comments,
+                        UnitPrice = x.UnitPrice,
+                        EmployeeId = int.Parse(User.Identity.GetEmployeeId())
+                    }).ToList();
+
+
+                    await _unitOfWork.OrderDetailRepository.InsertRangeTask(details);
+
+                    await _unitOfWork.Commit();
+
+                    order.OrderDetails = details;
+                    order.Id = or.Id;
+                    order.OrderNumber = or.OrderNumber;
+                    await _orderHub.Clients.All.OrderCreated(order);
+                    table.State = 1;
+                    _unitOfWork.TableRepository.Update(table);
+                    await _unitOfWork.Commit();
+                    await _orderHub.Clients.All.BussyTable(table);
+                    return Ok(order);
                 }
-                
-                order.Date = DateTime.Now;
-                order.Status = "Abierta";
-                or.OrderNumber = "O-" + ( await _unitOfWork.OrderRepository.CountTask() + 1);
-                await _unitOfWork.OrderRepository.InsertTask(or);
-                await _unitOfWork.Commit();
-
-                var details = order.OrderDetails.Select(x => new OrderDetail
+                else
                 {
-                    DishId = x.DishId != 0 ? x.DishId : null,
-                    ComboId = x.ComboId != 0 ? x.ComboId : null,
-                    Discount = x.Discount,
-                    Qty = x.Qty,
-                    OrderId = or.Id,
-                    Status = "En Cola",
-                    Total = x.Total,
-                    Comments = x.Comments,
-                    UnitPrice = x.UnitPrice,
-                    EmployeeId = int.Parse(User.Identity.GetEmployeeId())
-                }).ToList();
-
-
-                await _unitOfWork.OrderDetailRepository.InsertRangeTask(details);
-
-                await _unitOfWork.Commit();
-
-                order.OrderDetails = details;
-                order.Id = or.Id;
-                order.OrderNumber = or.OrderNumber;
-                await _orderHub.Clients.All.OrderCreated(order);
-                table.State = 1;
-                _unitOfWork.TableRepository.Update(table);
-                await _unitOfWork.Commit();
-                await _orderHub.Clients.All.BussyTable(table);
-                return Ok(order);
+                    return BadRequest(order);
+                }
             }
             catch (Exception e)
             {
