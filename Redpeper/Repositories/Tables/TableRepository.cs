@@ -22,7 +22,7 @@ namespace Redpeper.Repositories.Tables
         }
 
 
-        public async Task<List<Table>> GetByIdRange(List<int> ids)
+        public async Task<List<Table>> GetByIdRange(List<int?> ids)
         {
             return await _entities.Where(x => ids.Contains(x.Id)).ToListAsync();
 

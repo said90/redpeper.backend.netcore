@@ -69,7 +69,6 @@ namespace Redpeper.Controllers
                     var or = new Order
                     {
                         CustomerId = order.CustomerId,
-                        TableId = order.TableId,
                         Date = DateTime.Now,
                         Total = order.Total,
                         OrderTypeId = order.OrderType,
@@ -78,10 +77,19 @@ namespace Redpeper.Controllers
                     };
                     var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
 
-                    if (table.State == 1)
+                    if (table != null)
                     {
-                        return Conflict(new {table = table.Id, message = "Order Already Created"});
+
+                        if (table.State == 1)
+                        {
+                            return Conflict(new { table = table.Id, message = "Order Already Created" });
+                        }
+                        else
+                        {
+                            order.TableId = table.Id;
+                        }
                     }
+
 
                     order.Date = DateTime.Now;
                     order.Status = "Abierta";
@@ -100,7 +108,6 @@ namespace Redpeper.Controllers
                         Total = x.Total,
                         Comments = x.Comments,
                         UnitPrice = x.UnitPrice,
-                        EmployeeId = int.Parse(User.Identity.GetEmployeeId())
                     }).ToList();
 
 
@@ -112,10 +119,16 @@ namespace Redpeper.Controllers
                     order.Id = or.Id;
                     order.OrderNumber = or.OrderNumber;
                     await _orderHub.Clients.All.OrderCreated(order);
-                    table.State = 1;
-                    _unitOfWork.TableRepository.Update(table);
-                    await _unitOfWork.Commit();
-                    await _orderHub.Clients.All.BussyTable(table);
+          
+                    if (table != null)
+                    {
+                        table.State = 1;
+                        _unitOfWork.TableRepository.Update(table);
+                        await _unitOfWork.Commit();
+                        await _orderHub.Clients.All.BussyTable(table);
+
+
+                    }
                     return Ok(order);
                 }
                 else

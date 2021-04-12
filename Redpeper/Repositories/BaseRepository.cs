@@ -38,7 +38,7 @@ namespace Redpeper.Repositories
             return await _entities.ToPagedListAsync(pageNumber, itemsPerPage, sortBy);
         }
 
-        public async Task<T> GetByIdTask(int id)
+        public async Task<T> GetByIdTask(int? id)
         {
             try
             {

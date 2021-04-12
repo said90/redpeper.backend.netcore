@@ -12,7 +12,7 @@ namespace Redpeper.Repositories
 
         Task<PagedList<TEntity>> GetAllPageableTask(int pageNumber, int itemsPerPage, string sortBy);
 
-        Task<TEntity> GetByIdTask(int id);
+        Task<TEntity> GetByIdTask(int? id);
 
         Task<bool> ExistAsync(int id);
 
