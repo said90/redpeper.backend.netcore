@@ -64,8 +64,6 @@ namespace Redpeper.Controllers
             {
                 if (ModelState.IsValid)
                 {
-
-
                     var or = new Order
                     {
                         CustomerId = order.CustomerId,
@@ -75,7 +73,7 @@ namespace Redpeper.Controllers
                         Status = "Abierta",
                         NotificationToken = order.NotificationToken
                     };
-                    var table = await _unitOfWork.TableRepository.GetByIdTask(or.TableId);
+                    var table = await _unitOfWork.TableRepository.GetByIdTask(order.TableId);
 
                     if (table != null)
                     {
@@ -84,10 +82,8 @@ namespace Redpeper.Controllers
                         {
                             return Conflict(new { table = table.Id, message = "Order Already Created" });
                         }
-                        else
-                        {
-                            order.TableId = table.Id;
-                        }
+                        or.TableId = table.Id;
+                        
                     }
 
 
