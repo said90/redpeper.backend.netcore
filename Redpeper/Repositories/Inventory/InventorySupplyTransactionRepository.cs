@@ -36,7 +36,7 @@ namespace Redpeper.Repositories.Inventory
         public async Task<List<InventoryTransactionDto>> ByDateRange(DateTime initDate, DateTime endDate)
         {
             return await _entities
-                .Where(x => x.Date >= initDate && x.Date <= endDate).Select(y =>
+                .Where(x => x.Date >= initDate.Date && x.Date.Date <= endDate).Select(y =>
                     new InventoryTransactionDto
                     {
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
@@ -53,7 +53,7 @@ namespace Redpeper.Repositories.Inventory
             var transactionDetails = new InventoryTransactionDetails
             {
                 InventoryTransactions = await _entities
-                    .Where(x => x.Date == date && x.SupplyId == supplyId).Select(y =>
+                    .Where(x => x.Date == date.Date && x.SupplyId == supplyId).Select(y =>
                         new InventoryTransactionDto
                         {
                             TransactionType = y.TransactionType ==0? "Compra": "Venta",
@@ -75,7 +75,7 @@ namespace Redpeper.Repositories.Inventory
             var transactionDetails = new InventoryTransactionDetails
             {
                 InventoryTransactions = await _entities
-                    .Where(x => x.Date >= startDate && x.Date <= enDate && x.SupplyId == supplyId)
+                    .Where(x => x.Date >= startDate.Date && x.Date <= enDate.Date && x.SupplyId == supplyId)
                     .Select(y => new InventoryTransactionDto
                     {
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
