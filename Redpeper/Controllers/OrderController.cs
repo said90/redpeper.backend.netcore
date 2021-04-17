@@ -221,7 +221,7 @@ namespace Redpeper.Controllers
                                            TransactionNumber = orderNumber,
                                            Date = DateTime.Now,
                                            ExpirationDate = DateTime.Now,
-                                           Qty = -z.Qty,
+                                           Qty = -z.Qty*y.Qty,
                                            SupplyId = z.SupplyId
                                        };
                                        inventoryTransactions.Add(inventorySupplyTransaction);
