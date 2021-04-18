@@ -216,9 +216,11 @@ namespace Redpeper.Migrations
 
                     b.Property<string>("Dui");
 
-                    b.Property<string>("Lastname");
+                    b.Property<string>("Lastname")
+                        .IsRequired();
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<string>("Nit");
 

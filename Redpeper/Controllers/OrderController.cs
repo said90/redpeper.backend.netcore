@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Internal;
 using Redpeper.Dto;
 using Redpeper.Extensions;
+using Redpeper.Helper;
 using Redpeper.Hubs;
 using Redpeper.Hubs.Clients;
 using Redpeper.Model;
@@ -190,7 +192,6 @@ namespace Redpeper.Controllers
             if (orderDetails.DetailsId != null && orderDetails.DetailsId.Any(x => x != 0))
             {
                 var details = await _unitOfWork.OrderDetailRepository.GetByRangeId(orderDetails.DetailsId);
-                var orderNumber = await _unitOfWork.OrderRepository.GetOrderNumber(details[0].OrderId);
                 var detailsWithDifferentState = new List<OrderDetail>();
                 switch (orderDetails.Status)
                 {
@@ -210,14 +211,14 @@ namespace Redpeper.Controllers
                         {
                             if (x.ComboId!=null)
                             {
-                                x.Combo.ComboDetails.ForEach(y =>
+                                x.Combo.ComboDetails.ForEach( async y =>
                                 {
-                                   y.Dish.DishSupplies.ForEach(z =>
+                                   y.Dish.DishSupplies.ForEach( async z =>
                                    {
                                        var inventorySupplyTransaction = new InventorySupplyTransaction
                                        {
                                            TransactionType = 1,
-                                           TransactionNumber = orderNumber,
+                                           TransactionNumber = await _unitOfWork.OrderRepository.GetOrderNumber(x.OrderId),
                                            Date = DateTime.Now,
                                            ExpirationDate = DateTime.Now,
                                            Qty = -z.Qty*y.Qty,
@@ -229,12 +230,12 @@ namespace Redpeper.Controllers
                             }
                             else
                             {
-                                x.Dish.DishSupplies.ForEach(y =>
+                                x.Dish.DishSupplies.ForEach(async y =>
                                 {
                                     var inventorySupplyTransaction = new InventorySupplyTransaction
                                     {
                                         TransactionType = 1,
-                                        TransactionNumber = orderNumber,
+                                        TransactionNumber = await _unitOfWork.OrderRepository.GetOrderNumber(x.OrderId),
                                         Date = DateTime.Now,
                                         ExpirationDate = DateTime.Now,
                                         Qty =-y.Qty*x.Qty,
@@ -243,8 +244,14 @@ namespace Redpeper.Controllers
                                     inventoryTransactions.Add(inventorySupplyTransaction);
                                 });
                             }
-                        });
+                        }); 
                         await _orderHub.Clients.All.DetailsInProcess(details);
+                        var orderNumbers = inventoryTransactions.Select(x => x.TransactionNumber).ToArray();
+
+                        Array.Sort(orderNumbers, new AlphaNumericComparer());
+
+                        inventoryTransactions = inventoryTransactions.OrderBy(x=> orderNumbers.IndexOf(x.TransactionNumber)).ToList();
+
                         await _unitOfWork.InventorySupplyTransactionRepository.InsertRangeTask(inventoryTransactions);
                         await _unitOfWork.Commit();
                         return Ok(details);

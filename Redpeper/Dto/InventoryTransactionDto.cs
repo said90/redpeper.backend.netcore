@@ -7,6 +7,7 @@ namespace Redpeper.Dto
 {
     public class InventoryTransactionDto
     {
+        public int  Id { get; set; }
         public DateTime Date { get; set; }
         public string TransactionType { get; set; }
         public string TransationNumber { get; set; }

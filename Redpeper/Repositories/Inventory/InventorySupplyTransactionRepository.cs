@@ -39,6 +39,7 @@ namespace Redpeper.Repositories.Inventory
                 .Where(x => x.Date >= initDate.Date && x.Date.Date <= endDate).Select(y =>
                     new InventoryTransactionDto
                     {
+                        Id = y.Id,
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,
@@ -56,6 +57,7 @@ namespace Redpeper.Repositories.Inventory
                     .Where(x => x.Date == date.Date && x.SupplyId == supplyId).Select(y =>
                         new InventoryTransactionDto
                         {
+                            Id = y.Id,
                             TransactionType = y.TransactionType ==0? "Compra": "Venta",
                             TransationNumber = y.TransactionNumber,
                             Date = y.Date,
@@ -78,6 +80,7 @@ namespace Redpeper.Repositories.Inventory
                     .Where(x => x.Date >= startDate.Date && x.Date <= enDate.Date && x.SupplyId == supplyId)
                     .Select(y => new InventoryTransactionDto
                     {
+                        Id = y.Id,
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,

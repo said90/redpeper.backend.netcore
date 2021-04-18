@@ -100,7 +100,7 @@ namespace Redpeper.Services.Inventory.Templates
                 worksheet.Column(8).Width = 30;
 
 
-                var inventoryTransactionDtos = data.OrderBy(x => x.Supply).ToList();
+                var inventoryTransactionDtos = data.OrderBy(x => x.Supply).ThenBy(x=> x.Id).ToList();
                 for (int i = 0; i < inventoryTransactionDtos.Count; i++)
                 {
                     worksheet.Row(i + 3).Height = 25;
