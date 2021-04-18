@@ -16,5 +16,6 @@ namespace Redpeper.Model
         public virtual Supply Supply { get; set; }
         public DateTime Date { get; set; }
         public DateTime ExpirationDate { get; set; }
+        public string Comments { get; set; }
     }
 }

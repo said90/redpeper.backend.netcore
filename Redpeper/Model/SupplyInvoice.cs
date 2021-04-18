@@ -9,6 +9,7 @@ namespace Redpeper.Model
     public class SupplyInvoice
     {
         public int Id { get; set; }
+        public DateTime RegisterDate { get; set; } = DateTime.Now;
         public string InvoiceNumber { get; set; }
         public DateTime EmissionDate { get; set; }
         public virtual Provider Provider { get; set; }

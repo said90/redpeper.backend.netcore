@@ -96,5 +96,25 @@ namespace Redpeper.Controllers
             return await _unitOfWork.InventorySupplyTransactionRepository.BySupplyIdAndDateRange(supplyId, initDate, endDate);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> InventoryAdjustment(InventoryAdjustmentDto inventoryAdjustment)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(inventoryAdjustment);
+
+            var inventoryTransaction = new InventorySupplyTransaction
+            {
+                Date = DateTime.Now,
+                SupplyId = inventoryAdjustment.SupplyId,
+                Qty = inventoryAdjustment.Qty,
+                TransactionType = inventoryAdjustment.Qty>=0?0:1,
+                TransactionNumber = "Ajuste de Inventario",
+                Comments = inventoryAdjustment.Comments
+            };
+
+            await _unitOfWork.InventorySupplyTransactionRepository.InsertTask(inventoryTransaction);
+            await _unitOfWork.Commit();
+            return Ok(inventoryTransaction);
+        }
     }
 }

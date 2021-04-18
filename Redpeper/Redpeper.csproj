@@ -16,6 +16,8 @@
     <Compile Remove="Migrations\20201012043439_AddingEmployeeIdToOrderDetails.Designer.cs" />
     <Compile Remove="Migrations\20210404063543_AddingVirtualObjectOrderTypeOnTableOrder.cs" />
     <Compile Remove="Migrations\20210404063543_AddingVirtualObjectOrderTypeOnTableOrder.Designer.cs" />
+    <Compile Remove="Migrations\20210418190930_addingdefaultvalueforregisterdateoninvoicesupplytable.cs" />
+    <Compile Remove="Migrations\20210418190930_addingdefaultvalueforregisterdateoninvoicesupplytable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
