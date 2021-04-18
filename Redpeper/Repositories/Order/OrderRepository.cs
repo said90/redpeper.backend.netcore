@@ -81,7 +81,7 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<OrderReportDto>> GetOrdersByDateReport(DateTime date)
         {
-            return await _entities.Where(x => x.Date.Date == date).Select(x => new OrderReportDto
+            return await _entities.Where(x => x.Date.Date == date && x.Status.Equals("Cobrado")).Select(x => new OrderReportDto
             {
                 Date = x.Date,
                 Total = x.Total,
@@ -93,7 +93,7 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<OrderReportDto>> GetOrdersByDateRangeReport(DateTime initDate, DateTime endDate)
         {
-            return await _entities.Where(x => x.Date >= initDate.Date && x.Date.Date <= endDate).Select(x => new OrderReportDto
+            return await _entities.Where(x => x.Date >= initDate.Date && x.Date.Date <= endDate && x.Status.Equals("Cobrado")).Select(x => new OrderReportDto
             {
                 Date = x.Date,
                 Total = x.Total,

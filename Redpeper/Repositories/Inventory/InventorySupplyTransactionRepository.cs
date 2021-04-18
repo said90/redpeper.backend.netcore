@@ -27,7 +27,8 @@ namespace Redpeper.Repositories.Inventory
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,
                         Supply = y.Supply.Name,
-                        Qty = y.Qty
+                        Qty = y.Qty,
+                        Comments = y.Comments
                     })
                 .OrderBy(x => x.Date).ToListAsync();
 
@@ -44,7 +45,8 @@ namespace Redpeper.Repositories.Inventory
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,
                         Supply = y.Supply.Name,
-                        Qty = y.Qty
+                        Qty = y.Qty,
+                        Comments = y.Comments
                     })
                 .OrderBy(x => x.Date).ToListAsync();
         }
@@ -62,7 +64,8 @@ namespace Redpeper.Repositories.Inventory
                             TransationNumber = y.TransactionNumber,
                             Date = y.Date,
                             Supply = y.Supply.Name, 
-                            Qty = y.Qty
+                            Qty = y.Qty,
+                            Comments = y.Comments
                         })
                     .OrderBy(x => x.Date).ToListAsync()
             };
@@ -85,7 +88,8 @@ namespace Redpeper.Repositories.Inventory
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,
                         Supply = y.Supply.Name,
-                        Qty = y.Qty
+                        Qty = y.Qty,
+                        Comments = y.Comments
                     })
                     .OrderBy(x => x.Date).ToListAsync()
             };

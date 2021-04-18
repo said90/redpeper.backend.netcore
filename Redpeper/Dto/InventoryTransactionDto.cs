@@ -13,5 +13,6 @@ namespace Redpeper.Dto
         public string TransationNumber { get; set; }
         public string Supply { get; set; }
         public double Qty { get; set; }
+        public string Comments { get; set; }
     }
 }
