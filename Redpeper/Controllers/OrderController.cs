@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 using Redpeper.Dto;
 using Redpeper.Extensions;
 using Redpeper.Helper;
@@ -24,15 +28,20 @@ namespace Redpeper.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
+        public IConfiguration _configuration;
+        public string _connString;
         private readonly IUnitOfWork _unitOfWork;
         private IExpoServices _expoServices;
 
 
-        public OrderController(IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub, IExpoServices expoServices)
+        public OrderController(IUnitOfWork unitOfWork, IHubContext<OrderHub, IOrderClient> orderHub, IExpoServices expoServices, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _orderHub = orderHub;
             _expoServices = expoServices;
+            _connString = "DefaultConnection";
+            _configuration = configuration;
+
         }
 
         [HttpGet]
@@ -218,7 +227,7 @@ namespace Redpeper.Controllers
                                        var inventorySupplyTransaction = new InventorySupplyTransaction
                                        {
                                            TransactionType = 1,
-                                           TransactionNumber = await _unitOfWork.OrderRepository.GetOrderNumber(x.OrderId),
+                                           TransactionNumber = await GetOrderNumber(x.OrderId),
                                            Date = DateTime.Now,
                                            ExpirationDate = DateTime.Now,
                                            Qty = -z.Qty*y.Qty,
@@ -235,7 +244,7 @@ namespace Redpeper.Controllers
                                     var inventorySupplyTransaction = new InventorySupplyTransaction
                                     {
                                         TransactionType = 1,
-                                        TransactionNumber = await _unitOfWork.OrderRepository.GetOrderNumber(x.OrderId),
+                                        TransactionNumber = await GetOrderNumber(x.OrderId),
                                         Date = DateTime.Now,
                                         ExpirationDate = DateTime.Now,
                                         Qty =-y.Qty*x.Qty,
@@ -510,6 +519,19 @@ namespace Redpeper.Controllers
 
         //    return Ok(new {originalOrder, newOrders });
         //}
+
+        public async Task<string> GetOrderNumber(int orderId)
+        {
+            string orderQuery = @"SELECT o.""OrderNumber"" FROM ""Orders"" o WHERE o.""Id"" = @Id ; ";
+
+            using (IDbConnection conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnetion")))
+            {
+                conn.Open();
+                var workOrder = await conn.QueryFirstOrDefaultAsync<string>(orderQuery, new { Id = orderId });
+                conn.Close();
+                return workOrder;
+            }
+        }
      
     }
 }
