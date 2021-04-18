@@ -190,8 +190,7 @@ namespace Redpeper.Controllers
             if (orderDetails.DetailsId != null && orderDetails.DetailsId.Any(x => x != 0))
             {
                 var details = await _unitOfWork.OrderDetailRepository.GetByRangeId(orderDetails.DetailsId);
-                var orderId= details.First().OrderId;
-                var orderNumber = await _unitOfWork.OrderRepository.GetOrderNumber(orderId);
+                var orderNumber = await _unitOfWork.OrderRepository.GetOrderNumber(details[0].OrderId);
                 var detailsWithDifferentState = new List<OrderDetail>();
                 switch (orderDetails.Status)
                 {
@@ -238,7 +237,7 @@ namespace Redpeper.Controllers
                                         TransactionNumber = orderNumber,
                                         Date = DateTime.Now,
                                         ExpirationDate = DateTime.Now,
-                                        Qty =-y.Qty,
+                                        Qty =-y.Qty*x.Qty,
                                         SupplyId = y.SupplyId
                                     };
                                     inventoryTransactions.Add(inventorySupplyTransaction);
