@@ -20,7 +20,7 @@ namespace Redpeper.Repositories.Inventory
         public async Task<List<InventoryTransactionDto>> ByDate(DateTime date)
         {
             return await _entities
-                .Where(x => x.Date == date).Select(y =>
+                .Where(x => x.Date.Date == date).Select(y =>
                     new InventoryTransactionDto
                     {
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
