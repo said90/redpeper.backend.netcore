@@ -21,10 +21,10 @@ namespace Redpeper.Model
         public virtual Table Table { get; set; }
         public Decimal SubTotal { get; set; }
         public Decimal Total { get; set; }
+        public bool Tip { get; set; }
         public string Status { get; set; }
         public virtual List<OrderDetail> OrderDetails { get; set; }
         public int EmployeeId { get; set; }
         public string NotificationToken { get; set; }
-
     }
 }
