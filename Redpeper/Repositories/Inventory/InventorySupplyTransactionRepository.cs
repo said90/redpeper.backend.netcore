@@ -20,35 +20,50 @@ namespace Redpeper.Repositories.Inventory
         public async Task<List<InventoryTransactionDto>> ByDate(DateTime date)
         {
             return await _entities
-                .Where(x => x.Date.Date == date).Select(y =>
+                .Where(x => x.Date.Date == date)
+                .Include(x => x.Combo)
+                .Include(x => x.Dish)
+                .OrderBy(x=> x.SupplyId)
+                .ThenBy(x=>x.Id)
+                .Select(y =>
                     new InventoryTransactionDto
                     {
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,
+                        Combo = y.Combo != null ? y.Combo.Name : "-",
+                        ComboQty = y.Combo != null ? y.ComboQty : null,
+                        Dish = y.Dish != null ? y.Dish.Name : "-",
+                        DishQty = y.Dish != null ? y.DishQty : null,
                         Supply = y.Supply.Name,
+                        SupplyQty = y.SupplyQty,
                         Qty = y.Qty,
                         Comments = y.Comments
-                    })
-                .OrderBy(x => x.Date).ToListAsync();
-
+                    }).ToListAsync();
         }
 
         public async Task<List<InventoryTransactionDto>> ByDateRange(DateTime initDate, DateTime endDate)
         {
             return await _entities
-                .Where(x => x.Date >= initDate.Date && x.Date.Date <= endDate).Select(y =>
+                .Where(x => x.Date >= initDate.Date && x.Date.Date <= endDate).Include(x => x.Combo)
+                .Include(x => x.Dish)
+                .OrderBy(x => x.SupplyId)
+                .ThenBy(x => x.Id)
+                .Select(y =>
                     new InventoryTransactionDto
                     {
-                        Id = y.Id,
                         TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
                         TransationNumber = y.TransactionNumber,
                         Date = y.Date,
+                        Combo = y.Combo != null ? y.Combo.Name : "-",
+                        ComboQty = y.Combo != null ? y.ComboQty : null,
+                        Dish = y.Dish != null ? y.Dish.Name : "-",
+                        DishQty = y.Dish != null ? y.DishQty : null,
                         Supply = y.Supply.Name,
+                        SupplyQty = y.SupplyQty,
                         Qty = y.Qty,
                         Comments = y.Comments
-                    })
-                .OrderBy(x => x.Date).ToListAsync();
+                    }).ToListAsync();
         }
 
         public async Task<InventoryTransactionDetails> BySupplyIdAndDate(DateTime date, int supplyId)
@@ -60,10 +75,10 @@ namespace Redpeper.Repositories.Inventory
                         new InventoryTransactionDto
                         {
                             Id = y.Id,
-                            TransactionType = y.TransactionType ==0? "Compra": "Venta",
+                            TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
                             TransationNumber = y.TransactionNumber,
                             Date = y.Date,
-                            Supply = y.Supply.Name, 
+                            Supply = y.Supply.Name,
                             Qty = y.Qty,
                             Comments = y.Comments
                         })
@@ -81,18 +96,26 @@ namespace Redpeper.Repositories.Inventory
             {
                 InventoryTransactions = await _entities
                     .Where(x => x.Date >= startDate.Date && x.Date <= enDate.Date && x.SupplyId == supplyId)
-                    .Select(y => new InventoryTransactionDto
-                    {
-                        Id = y.Id,
-                        TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
-                        TransationNumber = y.TransactionNumber,
-                        Date = y.Date,
-                        Supply = y.Supply.Name,
-                        Qty = y.Qty,
-                        Comments = y.Comments
-                    })
-                    .OrderBy(x => x.Date).ToListAsync()
-            };
+                    .Include(x => x.Combo)
+                    .Include(x => x.Dish)
+                    .OrderBy(x => x.SupplyId)
+                    .ThenBy(x => x.Id)
+                    .Select(y =>
+                        new InventoryTransactionDto
+                        {
+                            TransactionType = y.TransactionType == 0 ? "Compra" : "Venta",
+                            TransationNumber = y.TransactionNumber,
+                            Date = y.Date,
+                            Combo = y.Combo != null ? y.Combo.Name : "-",
+                            ComboQty = y.Combo != null ? y.ComboQty : null,
+                            Dish = y.Dish != null ? y.Dish.Name : "-",
+                            DishQty = y.Dish != null ? y.DishQty : null,
+                            Supply = y.Supply.Name,
+                            SupplyQty = y.SupplyQty,
+                            Qty = y.Qty,
+                            Comments = y.Comments
+                        }).ToListAsync()
+        };
 
             transactionDetails.Total = transactionDetails.InventoryTransactions.Sum(x => x.Qty);
             return transactionDetails;

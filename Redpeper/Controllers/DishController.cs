@@ -17,7 +17,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Redpeper.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class DishController : ControllerBase
@@ -104,16 +103,20 @@ namespace Redpeper.Controllers
                     await _unitOfWork.Commit();
                 }
 
-                var dishId = await _unitOfWork.DishRepository.GetMaxId();
-                var dishDetailsJson = JsonConvert.DeserializeObject<List<DishSupply>>(dishDto.DishSupplies); ;
-                var dishSupplies = dishDetailsJson.Select(x => new DishSupply
+                if (TryValidateModel(!string.IsNullOrEmpty(dishDto.DishSupplies)))
                 {
-                    DishId = dishId,
-                    SupplyId = x.SupplyId,
-                    Comment = x.Comment,
-                    Qty = x.Qty
-                }).ToList();
-                await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
+                    var dishId = await _unitOfWork.DishRepository.GetMaxId();
+                    var dishDetailsJson = JsonConvert.DeserializeObject<List<DishSupply>>(dishDto.DishSupplies); ;
+                    var dishSupplies = dishDetailsJson.Select(x => new DishSupply
+                    {
+                        DishId = dishId,
+                        SupplyId = x.SupplyId,
+                        Comment = x.Comment,
+                        Qty = x.Qty
+                    }).ToList();
+                    await _unitOfWork.DishSuppliesRepository.InsertRangeTask(dishSupplies);
+                }
+             
                 await _unitOfWork.Commit();
 
                 return dish;

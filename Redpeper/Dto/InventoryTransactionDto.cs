@@ -11,7 +11,12 @@ namespace Redpeper.Dto
         public DateTime Date { get; set; }
         public string TransactionType { get; set; }
         public string TransationNumber { get; set; }
+        public string Combo { get; set; }
+        public double? ComboQty { get; set; }
+        public string Dish { get; set; }
+        public double? DishQty { get; set; }
         public string Supply { get; set; }
+        public double? SupplyQty { get; set; }
         public double Qty { get; set; }
         public string Comments { get; set; }
     }

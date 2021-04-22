@@ -10,5 +10,6 @@ namespace Redpeper.Dto
     {
         public List<int> DetailsId { get; set; }
         public int Status { get; set; }
+        public bool Tip { get; set; }
     }
 }

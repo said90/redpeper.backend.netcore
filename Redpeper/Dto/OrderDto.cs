@@ -12,6 +12,7 @@ namespace Redpeper.Dto
         public int Id { get; set; }
         public string OrderNumber { get; set; }
         public int OrderType { get; set; }
+        public bool Tip { get; set; }
         public DateTime Date { get; set; }
         public Decimal Total { get; set; }
         public int CustomerId { get; set; }

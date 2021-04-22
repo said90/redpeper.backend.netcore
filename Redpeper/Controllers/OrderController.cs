@@ -30,7 +30,7 @@ namespace Redpeper.Controllers
         private readonly IHubContext<OrderHub, IOrderClient> _orderHub;
         public IConfiguration _configuration;
         public string _connString;
-        private readonly IUnitOfWork _unitOfWork;
+            private readonly IUnitOfWork _unitOfWork;
         private IExpoServices _expoServices;
 
 
@@ -82,22 +82,19 @@ namespace Redpeper.Controllers
                         Total = order.Total,
                         OrderTypeId = order.OrderType,
                         Status = "Abierta",
+                        Tip = order.Tip,
                         NotificationToken = order.NotificationToken
                     };
                     var table = await _unitOfWork.TableRepository.GetByIdTask(order.TableId);
 
                     if (table != null)
                     {
-
                         if (table.State == 1)
                         {
                             return Conflict(new { table = table.Id, message = "Order Already Created" });
                         }
                         or.TableId = table.Id;
-                        
                     }
-
-
                     order.Date = DateTime.Now;
                     order.Status = "Abierta";
                     or.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
@@ -117,9 +114,7 @@ namespace Redpeper.Controllers
                         UnitPrice = x.UnitPrice,
                     }).ToList();
 
-
                     await _unitOfWork.OrderDetailRepository.InsertRangeTask(details);
-
                     await _unitOfWork.Commit();
 
                     order.OrderDetails = details;
@@ -133,8 +128,6 @@ namespace Redpeper.Controllers
                         _unitOfWork.TableRepository.Update(table);
                         await _unitOfWork.Commit();
                         await _orderHub.Clients.All.BussyTable(table);
-
-
                     }
                     return Ok(order);
                 }
@@ -163,7 +156,6 @@ namespace Redpeper.Controllers
                 if (orderDetailsToUpdate.Any(x=> x.OrderId!= id))
                 {
                     return BadRequest(new { errors = "The order id Provided  not match with  order Details", id, orderDetailsToUpdate });
-
                 }
 
                 var orderDetailsToRemove = orderAsNoTracking.OrderDetails.Where(x => !orderDetailsToUpdate.Select(y=>y.Id).Contains(x.Id) && x.Status.Equals("En Cola")).ToList();
@@ -206,6 +198,7 @@ namespace Redpeper.Controllers
                 {
                     case 2:
                         //todo aqui debo de hacer el ajuste de inventario,disminuir el inventario
+                        
                         details.ForEach(x => { if (x.Status.Equals("En Cola")) { x.Status = "En Proceso"; }else { detailsWithDifferentState.Add(x); } });
                        
                         if (detailsWithDifferentState.Count >=1)
@@ -220,7 +213,7 @@ namespace Redpeper.Controllers
                         {
                             if (x.ComboId!=null)
                             {
-                                x.Combo.ComboDetails.ForEach( async y =>
+                                x.Combo.ComboDetails.ForEach( y =>
                                 {
                                    y.Dish.DishSupplies.ForEach( async z =>
                                    {
@@ -230,8 +223,14 @@ namespace Redpeper.Controllers
                                            TransactionNumber = await GetOrderNumber(x.OrderId),
                                            Date = DateTime.Now,
                                            ExpirationDate = DateTime.Now,
-                                           Qty = -z.Qty*y.Qty,
-                                           SupplyId = z.SupplyId
+                                           Qty = -z.Qty*y.Qty*x.Qty,
+                                           SupplyId = z.SupplyId,
+                                           SupplyQty = z.Qty,
+                                           DishId = y.DishId,
+                                           DishQty = y.Qty,
+                                           ComboId = x.ComboId,
+                                           ComboQty = x.Qty,
+                                           OrderId = x.OrderId
                                        };
                                        inventoryTransactions.Add(inventorySupplyTransaction);
                                    });
@@ -248,18 +247,20 @@ namespace Redpeper.Controllers
                                         Date = DateTime.Now,
                                         ExpirationDate = DateTime.Now,
                                         Qty =-y.Qty*x.Qty,
-                                        SupplyId = y.SupplyId
+                                        SupplyId = y.SupplyId,
+                                        SupplyQty = y.Qty,
+                                        DishId = x.DishId,
+                                        DishQty = x.Qty,
+                                        OrderId = x.OrderId
                                     };
                                     inventoryTransactions.Add(inventorySupplyTransaction);
                                 });
                             }
                         }); 
+
                         await _orderHub.Clients.All.DetailsInProcess(details);
-                        var orderNumbers = inventoryTransactions.Select(x => x.TransactionNumber).ToArray();
 
-                        Array.Sort(orderNumbers, new AlphaNumericComparer());
-
-                        inventoryTransactions = inventoryTransactions.OrderBy(x=> orderNumbers.IndexOf(x.TransactionNumber)).ToList();
+                        inventoryTransactions = inventoryTransactions.OrderBy(x=> x.OrderId).ToList();
 
                         await _unitOfWork.InventorySupplyTransactionRepository.InsertRangeTask(inventoryTransactions);
                         await _unitOfWork.Commit();
@@ -362,6 +363,7 @@ namespace Redpeper.Controllers
                             if (x.Status.Equals("Preventa")  && incompletedDetails.Count == 0)
                             {
                                 x.Status = "Cobrado";
+                                x.Tip = x.Tip;
                             }
 
                         });
@@ -473,54 +475,8 @@ namespace Redpeper.Controllers
             return Ok(orderDetail);
         }
 
-        //[HttpPost("{orderId}/[action]")]
-        //public async Task<IActionResult> DivideOrder(int orderId,[FromBody] List<OrderDto> orders)
-        //{
 
-        //    if (!await _unitOfWork.OrderRepository.ExistAsync(orderId)) return BadRequest(orderId);
-
-
-        //    Customer newCustomer = new Customer();
-        //    List<Order> newOrders = new List<Order>();
-
-        //    orders.ForEach(async x =>
-        //    {
-        //        if (x.CustomerId == 0)
-        //        {
-        //             newCustomer = new Customer {Name = x.Name, Lastname = x.LastName};
-        //            await _unitOfWork.CustomerRepository.InsertTask(newCustomer);
-        //        }
-
-        //        var newOrder = new Order
-        //        {
-        //            CustomerId = x.CustomerId,
-        //            TableId = x.TableId,
-        //            Date = DateTime.Now,
-        //            Total = x.Total,
-        //            Status = "Preventa",
-        //            Customer = x.CustomerId ==0? newCustomer:null
-        //        };
-        //        newOrder.OrderNumber = "O-" + (await _unitOfWork.OrderRepository.CountTask() + 1);
-
-        //        await _unitOfWork.OrderRepository.InsertTask(newOrder);
-
-        //        x.OrderDetails.ForEach(y => { y.Order = newOrder; });
-        //        _unitOfWork.OrderDetailRepository.UpdateRange(x.OrderDetails);
-        //        newOrders.Add(newOrder);
-        //    });
-
-
-        //    await _unitOfWork.Commit();
-        //    var originalOrder = await _unitOfWork.OrderRepository.GetByIdNoTracking(orderId);
-
-        //    originalOrder.Total = (decimal)originalOrder.OrderDetails.Sum(x => x.Total);
-        //    _unitOfWork.OrderRepository.Update(originalOrder);
-        //    await _unitOfWork.Commit();
-
-        //    return Ok(new {originalOrder, newOrders });
-        //}
-
-        public async Task<string> GetOrderNumber(int orderId)
+        private async Task<string> GetOrderNumber(int orderId)
         {
             string orderQuery = @"SELECT o.""OrderNumber"" FROM ""Orders"" o WHERE o.""Id"" = @Id ; ";
 

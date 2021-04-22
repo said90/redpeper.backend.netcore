@@ -17,7 +17,6 @@ using Redpeper.Repositories.Order.Combos;
 
 namespace Redpeper.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class ComboController : ControllerBase
