@@ -18,7 +18,7 @@ namespace Redpeper.Services.Expo
             {
                 PushTitle = x.Title,
                 PushTo = new List<string> { x.Token},
-                PushBody = x.OrderDetail.Combo !=null ? x.OrderDetail.Combo.Name : x.OrderDetail.Dish.Name + " - " + x.OrderDetail.Qty,
+                PushBody =$"{ x.OrderDetail.Qty} - {(x.OrderDetail.Combo != null ? x.OrderDetail.Combo.Name : x.OrderDetail.Dish.Name) }" ,
                 PushPriority = "high"
             }).ToList();
 

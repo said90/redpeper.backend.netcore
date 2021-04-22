@@ -339,21 +339,37 @@ namespace Redpeper.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int?>("ComboId");
+
+                    b.Property<double?>("ComboQty");
+
                     b.Property<string>("Comments");
 
                     b.Property<DateTime>("Date");
 
+                    b.Property<int?>("DishId");
+
+                    b.Property<double?>("DishQty");
+
                     b.Property<DateTime>("ExpirationDate");
+
+                    b.Property<int?>("OrderId");
 
                     b.Property<double>("Qty");
 
                     b.Property<int>("SupplyId");
+
+                    b.Property<double?>("SupplyQty");
 
                     b.Property<string>("TransactionNumber");
 
                     b.Property<int>("TransactionType");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ComboId");
+
+                    b.HasIndex("DishId");
 
                     b.HasIndex("SupplyId");
 
@@ -724,6 +740,14 @@ namespace Redpeper.Migrations
 
             modelBuilder.Entity("Redpeper.Model.InventorySupplyTransaction", b =>
                 {
+                    b.HasOne("Redpeper.Model.Combo", "Combo")
+                        .WithMany()
+                        .HasForeignKey("ComboId");
+
+                    b.HasOne("Redpeper.Model.Dish", "Dish")
+                        .WithMany()
+                        .HasForeignKey("DishId");
+
                     b.HasOne("Redpeper.Model.Supply", "Supply")
                         .WithMany()
                         .HasForeignKey("SupplyId")

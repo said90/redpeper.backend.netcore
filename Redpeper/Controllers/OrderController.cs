@@ -285,7 +285,7 @@ namespace Redpeper.Controllers
                         var notifications = details.Select(x => new NotificationOrderDto
                         {
                             OrderDetail = x,
-                            Title = "Platillo Listo Para Entregar",
+                            Title = $"¡ORDEN NUMERO {orders.Where(y => y.Id == x.OrderId).Select(y => y.OrderNumber).FirstOrDefault()} LISTA PARA ENTREGAR!" ,
                             Token = orders.Where(y=> y.Id == x.OrderId).Select(y=> y.NotificationToken).FirstOrDefault()
                         }).ToList();
 
@@ -332,6 +332,7 @@ namespace Redpeper.Controllers
                             if (x.Status.Equals("Abierta" ) && incompletedDetails.Count==0)
                             {
                                 x.Status = "Preventa";
+                                x.Tip = orderToChange.Tip;
                             }
                             else
                             {
@@ -363,7 +364,7 @@ namespace Redpeper.Controllers
                             if (x.Status.Equals("Preventa")  && incompletedDetails.Count == 0)
                             {
                                 x.Status = "Cobrado";
-                                x.Tip = x.Tip;
+                                
                             }
 
                         });
