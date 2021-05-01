@@ -71,7 +71,10 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<Model.Order>> GetOrdersByDate(DateTime date)
         {
-            return await _entities.Include(x => x.OrderDetails).Where(x => x.Date.Date == date).ToListAsync();
+            return await _entities.Include(x => x.OrderDetails)
+                .Include(x=> x.OrderType)
+                 .Include(x=> x.Customer)
+                .Where(x => x.Date.Date == date).ToListAsync();
         }
 
         public async Task<List<Model.Order>> GetOrdersByDateRange(DateTime date)
@@ -81,13 +84,14 @@ namespace Redpeper.Repositories.Order
 
         public async Task<List<OrderReportDto>> GetOrdersByDateReport(DateTime date)
         {
-            return await _entities.Where(x => x.Date.Date == date && x.Status.Equals("Cobrado")).Select(x => new OrderReportDto
+            return await _entities.Where(x => x.Date.Date == date && x.Status.Equals("Cobrado")).Include(x=> x.OrderDetails).Select(x => new OrderReportDto
             {
                 Date = x.Date,
                 Total = x.Total,
                 OrderNumber = x.OrderNumber,
                 OrderType = x.OrderType.Name,
-                Customer = $"{x.Customer.Name} {x.Customer.Lastname}"
+                Customer = $"{x.Customer.Name} {x.Customer.Lastname}",
+                OrderDetails = x.OrderDetails
             }).ToListAsync();
         }
 

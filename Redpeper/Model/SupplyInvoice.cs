@@ -16,7 +16,6 @@ namespace Redpeper.Model
         public int ProviderId { get; set; }
         public double Total { get; set; }
         public virtual List<SupplyInvoiceDetail> Details { get; set; }
-        public bool Iva { get; set; }
-
+        public bool Iva { get; set; } = false;
     }
 }

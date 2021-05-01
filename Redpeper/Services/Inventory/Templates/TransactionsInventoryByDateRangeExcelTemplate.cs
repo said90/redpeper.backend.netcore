@@ -198,7 +198,7 @@ namespace Redpeper.Services.Inventory.Templates
                     worksheet.Cells[i + 3, 8].Style.Border.Left.Style = ExcelBorderStyle.Thin;
                     worksheet.Cells[i + 3, 8].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 
-                    worksheet.Cells[i + 3, 9].Value = inventoryTransactionDtos[i].SupplyQty;
+                    worksheet.Cells[i + 3, 9].Value = inventoryTransactionDtos[i].SupplyQty == null ? (object) "-" : inventoryTransactionDtos[i].SupplyQty;
                     worksheet.Cells[i + 3, 9].Style.Border.Left.Style = ExcelBorderStyle.Thin;
                     worksheet.Cells[i + 3, 9].Style.Border.Right.Style = ExcelBorderStyle.Thin;
 

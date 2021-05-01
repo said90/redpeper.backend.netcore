@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Redpeper.Model;
 
 namespace Redpeper.Dto
 {
@@ -12,5 +13,6 @@ namespace Redpeper.Dto
         public string OrderNumber { get; set; }
         public string  Customer { get; set; }
         public Decimal Total { get; set; }
+        public List<OrderDetail> OrderDetails { get; set; }
     }
 }

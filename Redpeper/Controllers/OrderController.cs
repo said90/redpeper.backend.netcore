@@ -208,14 +208,16 @@ namespace Redpeper.Controllers
                         }
 
                         _unitOfWork.OrderDetailRepository.UpdateRange(details);
+                        await _unitOfWork.Commit();
+
                         var inventoryTransactions = new List<InventorySupplyTransaction>();
                         details.ForEach(x =>
                         {
                             if (x.ComboId!=null)
                             {
-                                x.Combo.ComboDetails.ForEach( y =>
+                                x.Combo.ComboDetails.ForEach(y =>
                                 {
-                                   y.Dish.DishSupplies.ForEach( async z =>
+                                   y.Dish.DishSupplies.ForEach(async z =>
                                    {
                                        var inventorySupplyTransaction = new InventorySupplyTransaction
                                        {
@@ -258,12 +260,12 @@ namespace Redpeper.Controllers
                             }
                         }); 
 
-                        await _orderHub.Clients.All.DetailsInProcess(details);
 
                         inventoryTransactions = inventoryTransactions.OrderBy(x=> x.OrderId).ToList();
 
                         await _unitOfWork.InventorySupplyTransactionRepository.InsertRangeTask(inventoryTransactions);
                         await _unitOfWork.Commit();
+                        await _orderHub.Clients.All.DetailsInProcess(details);
                         return Ok(details);
 
                     case 3:
