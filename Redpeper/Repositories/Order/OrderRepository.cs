@@ -91,7 +91,8 @@ namespace Redpeper.Repositories.Order
                 OrderNumber = x.OrderNumber,
                 OrderType = x.OrderType.Name,
                 Customer = $"{x.Customer.Name} {x.Customer.Lastname}",
-                OrderDetails = x.OrderDetails
+                OrderDetails = x.OrderDetails,
+                Tip = x.Tip
             }).ToListAsync();
         }
 
@@ -103,7 +104,8 @@ namespace Redpeper.Repositories.Order
                 Total = x.Total,
                 OrderNumber = x.OrderNumber,
                 OrderType = x.OrderType.Name,
-                Customer = $"{x.Customer.Name} {x.Customer.Lastname}"
+                Customer = $"{x.Customer.Name} {x.Customer.Lastname}",
+                Tip = x.Tip
             }).ToListAsync();
         }
     }
