@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Redpeper.Collection;
+using Redpeper.Dto;
 using Redpeper.Hubs;
 using Redpeper.Hubs.Clients;
 using Redpeper.Model;
@@ -16,7 +17,6 @@ using Redpeper.Repositories.Tables;
 
 namespace Redpeper.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class TableController : ControllerBase
@@ -95,7 +95,7 @@ namespace Redpeper.Controllers
 
 
         [HttpPatch("[action]/{id}")]
-        public async Task<ActionResult<Table>> ChangeTableState(int id,Customer customer)
+        public async Task<ActionResult<Table>> ChangeTableState(int id,CustomerDto customer)
         {
             try
             {
@@ -103,8 +103,10 @@ namespace Redpeper.Controllers
 
                 if (customer.Id== 0)
                 {
-                    await _unitOfWork.CustomerRepository.InsertTask(customer);
+                    var cust = new Customer {Name = customer.Name, Lastname = customer.Lastname};
+                    await _unitOfWork.CustomerRepository.InsertTask(cust);
                     await _unitOfWork.Commit();
+                    customer.Id = cust.Id;
                 }
                 var table = await _unitOfWork.TableRepository.GetByIdTask(id);
                 table.CustomerId = customer.Id;
