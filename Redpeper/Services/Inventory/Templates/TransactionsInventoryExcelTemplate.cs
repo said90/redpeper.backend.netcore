@@ -148,8 +148,8 @@ namespace Redpeper.Services.Inventory.Templates
                 worksheet.Column(10).AutoFit();
                 worksheet.Column(11).AutoFit();
                 worksheet.Column(13).AutoFit();
-                worksheet.Column(14).AutoFit();
-
+                worksheet.Column(14).Width = 37;
+                worksheet.View.FreezePanes(3, 1);
 
                 var inventoryTransactionDtos = data.OrderBy(x => x.Supply).ToList();
                 for (int i = 0; i < inventoryTransactionDtos.Count; i++)

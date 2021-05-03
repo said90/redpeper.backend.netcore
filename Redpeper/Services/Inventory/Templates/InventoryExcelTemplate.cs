@@ -32,6 +32,8 @@ namespace Redpeper.Services.Inventory.Templates
                 worksheet.Row(1).Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 worksheet.Column(1).Width = 45;
                 worksheet.Column(2).Width = 22;
+                worksheet.View.FreezePanes(2, 1);
+
 
                 for (int i = 0; i < data.Count; i++)
                 {
