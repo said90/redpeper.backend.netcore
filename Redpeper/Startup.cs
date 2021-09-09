@@ -55,7 +55,7 @@ namespace Redpeper
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString(GetHerokuConnectionString())));
+            services.AddDbContext<DataContext>(x => x.UseNpgsql(Configuration.GetConnectionString("PostgresConnetion")));
             services.AddIdentity<User, IdentityRole>(cfg =>
             {
                 cfg.User.RequireUniqueEmail = true;
