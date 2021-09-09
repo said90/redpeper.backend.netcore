@@ -33,41 +33,50 @@ namespace Redpeper.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateToken([FromBody] UserDto model)
         {
-            if (ModelState.IsValid)
+            try
             {
-
-                var user = await _userHelper.GetUserByUsername(model.Username);
-                if (user != null)
+                if (ModelState.IsValid)
                 {
-                    var result = await _userHelper.ValidatePasswordAsync(user, model.Password);
 
-                    if (result.Succeeded)
+                    var user = await _userHelper.GetUserByUsername(model.Username);
+                    if (user != null)
                     {
-                        var claims = new[]
-                        {
-                            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                            new Claim("UserId", user.Id ?? string.Empty),
-                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                            new Claim("EmployeeId", user.EmployeeId.ToString() ?? string.Empty)
-                        };
+                        var result = await _userHelper.ValidatePasswordAsync(user, model.Password);
 
-                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
-                        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                        var token = new JwtSecurityToken(
-                            _configuration["Tokens:Issuer"],
-                            _configuration["Tokens:Audience"],
-                            claims,
-                            expires: DateTime.UtcNow.AddDays(99),
-                            signingCredentials: credentials);
-                        var results = new
+                        if (result.Succeeded)
                         {
-                            token = new JwtSecurityTokenHandler().WriteToken(token),
-                            expiration = token.ValidTo
-                        };
+                            var claims = new[]
+                            {
+                                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                                new Claim("UserId", user.Id ?? string.Empty),
+                                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                                new Claim("EmployeeId", user.EmployeeId.ToString() ?? string.Empty)
+                            };
 
-                        return Created(string.Empty, results);
+                            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
+                            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                            var token = new JwtSecurityToken(
+                                _configuration["Tokens:Issuer"],
+                                _configuration["Tokens:Audience"],
+                                claims,
+                                expires: DateTime.UtcNow.AddDays(99),
+                                signingCredentials: credentials);
+                            var results = new
+                            {
+                                token = new JwtSecurityTokenHandler().WriteToken(token),
+                                expiration = token.ValidTo
+                            };
+
+                            return Created(string.Empty, results);
+                        }
                     }
                 }
+
+            }
+            catch (Exception e)
+            {
+                BadRequest(e);
+                
             }
 
             return BadRequest();
